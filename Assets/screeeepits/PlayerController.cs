@@ -11,6 +11,8 @@ public class PlayerController : MonoBehaviour
     private CharacterController controller;
     private Vector3 velocity;
     public SpriteAnimation anim;
+    private Goon currentTarget;
+    public float sightDistance = 20f;
 
     //steppies
     private Vector3 lastPosition;
@@ -82,6 +84,56 @@ public class PlayerController : MonoBehaviour
             walkedDistance -= stepDistance;
 
             GameManager.Instance.UseStep();
+        }
+
+
+
+        // Look for a goon in front of the player
+        Vector3 rayOrigin = transform.position + controller.center;
+        RaycastHit hit;
+
+        if (Physics.Raycast(rayOrigin, transform.forward, out hit, sightDistance))
+        {
+            Debug.DrawRay(rayOrigin, transform.forward * sightDistance, Color.red);
+
+            Goon goon = hit.collider.GetComponent<Goon>();
+
+            if (goon != null)
+            {
+                // Hide previous target's UI
+                if (currentTarget != null && currentTarget != goon)
+                    currentTarget.HideUI();
+
+                currentTarget = goon;
+
+                // Show countdown
+                float distance = hit.distance;
+
+                int stepsAway = Mathf.CeilToInt(distance / stepDistance);
+                int remaining = stepsAway - goon.duelDistance;
+
+                goon.UpdateCountdown(remaining);
+
+                Debug.Log($"Goon spotted! Duel starts at {goon.duelDistance} steps.");
+            }
+            else
+            {
+                if (currentTarget != null)
+                {
+                    currentTarget.HideUI();
+                    currentTarget = null;
+                }
+            }
+        }
+        else
+        {
+            Debug.DrawRay(rayOrigin, transform.forward * sightDistance, Color.green);
+
+            if (currentTarget != null)
+            {
+                currentTarget.HideUI();
+                currentTarget = null;
+            }
         }
 
     }
