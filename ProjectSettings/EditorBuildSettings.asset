@@ -8,6 +8,24 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/OutdoorsScene.unity
     guid: 8124e5870f4fd4c779e7a5f994e84ad1
+  - enabled: 1
+    path: Assets/_Dev/Scenes/Menu_Test.unity
+    guid: 9d001290b8d1341c1bee8762b35d07bc
+  - enabled: 1
+    path: Assets/_Dev/Scenes/Pause_Test.unity
+    guid: b4ab21b7a1641434e8a6b37c617f5ed3
+  - enabled: 1
+    path: Assets/_Dev/Scenes/DynamiteDash.unity
+    guid: 664801196422040ef9208e5118a94b40
+  - enabled: 1
+    path: Assets/_Dev/Scenes/TargetRange.unity
+    guid: e889ca1c496fa43a49297d0a23ff800f
+  - enabled: 1
+    path: Assets/_Dev/Scenes/BankCrack.unity
+    guid: aca5e54cc061c47199eacfd7df7e1367
+  - enabled: 1
+    path: Assets/_Dev/Scenes/Stagecoach.unity
+    guid: bf5485e0b54c64def98a130f2a5afa3e
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
   m_UseUCBPForAssetBundles: 0
