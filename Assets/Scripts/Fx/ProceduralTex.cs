@@ -45,4 +45,41 @@ public static class ProceduralTex
             return col;
         });
     }
+
+    public static Sprite Star(int size, Color color)
+    {
+        int points = 5;
+        float cx = size * 0.5f, outer = size * 0.48f, inner = size * 0.20f;
+        var v = new Vector2[points * 2];
+        for (int i = 0; i < v.Length; i++)
+        {
+            float ang = Mathf.PI / 2f + i * Mathf.PI / points;
+            float rad = i % 2 == 0 ? outer : inner;
+            v[i] = new Vector2(cx + Mathf.Cos(ang) * rad, cx + Mathf.Sin(ang) * rad);
+        }
+        return Generate(size, size, (x, y) => InPoly(v, x + 0.5f, y + 0.5f) ? color : Color.clear);
+    }
+
+    public static Sprite TriangleDown(int size, Color color)
+    {
+        return Generate(size, size, (x, y) =>
+        {
+            float half = (float)y / size * 0.5f;
+            return Mathf.Abs((float)x / size - 0.5f) <= half ? color : Color.clear;
+        });
+    }
+
+    static bool InPoly(Vector2[] v, float px, float py)
+    {
+        bool inside = false;
+        for (int i = 0, j = v.Length - 1; i < v.Length; j = i++)
+        {
+            if (v[i].y > py != v[j].y > py &&
+                px < (v[j].x - v[i].x) * (py - v[i].y) / (v[j].y - v[i].y) + v[i].x)
+            {
+                inside = !inside;
+            }
+        }
+        return inside;
+    }
 }

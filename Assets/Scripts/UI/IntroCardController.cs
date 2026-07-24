@@ -42,7 +42,7 @@ public class IntroCardController : MonoBehaviour
         sub.text = total > 0 ? $"RIVAL {cur} / {total}" : "";
         var r = RivalRoster.Current;
         string line = r == null ? "" : Cowardice.Fleeing ? r.CowardLine : r.Taunt;
-        tauntText = string.IsNullOrEmpty(line) ? "" : $"“{line}”";
+        tauntText = string.IsNullOrEmpty(line) ? "" : $"\"{line}\"";
         taunt.text = "";
         if (playing != null)
         {

@@ -11,20 +11,20 @@ public static class ProceduralSfx
     {
         switch (name)
         {
-            case "ui_move":    return Blip(620f, 0.045f, 0.22f, Wave.Triangle, 780f);
-            case "ui_confirm": return Blip(720f, 0.10f, 0.30f, Wave.Square, 1180f);
-            case "ui_back":    return Blip(520f, 0.10f, 0.28f, Wave.Square, 300f);
-            case "tick":       return Blip(1500f, 0.028f, 0.18f, Wave.Square, 1500f);
+            case "ui_move":    return Blip(620f, 0.05f, 0.18f, Wave.Triangle, 780f);
+            case "ui_confirm": return Blip(720f, 0.11f, 0.22f, Wave.Triangle, 1050f);
+            case "ui_back":    return Blip(520f, 0.11f, 0.2f, Wave.Triangle, 320f);
+            case "tick":       return Blip(1000f, 0.03f, 0.12f, Wave.Triangle, 1000f);
             case "footstep":   return Footstep();
             case "draw":       return DrawSting();
             case "rival":      return Blip(210f, 0.5f, 0.4f, Wave.Saw, 95f);
             case "coin":       return Blip(1200f, 0.12f, 0.3f, Wave.Triangle, 1900f);
             case "explosion":  return Explosion();
             case "shatter":    return Shatter();
-            case "empty":      return Blip(2200f, 0.03f, 0.15f, Wave.Square, 1800f);
-            case "clunk":      return Blip(150f, 0.14f, 0.55f, Wave.Square, 90f);
-            case "alarm":      return Blip(900f, 0.22f, 0.4f, Wave.Square, 900f);
-            case "type":       return Blip(1500f, 0.018f, 0.1f, Wave.Square, 1500f);
+            case "empty":      return Blip(1300f, 0.03f, 0.11f, Wave.Triangle, 1200f);
+            case "clunk":      return Blip(150f, 0.14f, 0.45f, Wave.Triangle, 90f);
+            case "alarm":      return Blip(720f, 0.22f, 0.28f, Wave.Triangle, 720f);
+            case "type":       return Blip(950f, 0.02f, 0.06f, Wave.Triangle, 950f);
             case "gunshot":    return Gunshot();
             case "win":        return Chord(new[] { 523.25f, 659.25f, 783.99f }, 0.7f, false);
             case "lose":       return Chord(new[] { 349.23f, 261.63f, 196f }, 0.9f, true);
@@ -35,9 +35,20 @@ public static class ProceduralSfx
 
     static AudioClip FromSamples(string name, float[] data, bool loop)
     {
+        Lowpass(data, 0.45f);
         var clip = AudioClip.Create(name, data.Length, 1, SR, false);
         clip.SetData(data, 0);
         return clip;
+    }
+
+    static void Lowpass(float[] d, float a)
+    {
+        float y = 0f;
+        for (int i = 0; i < d.Length; i++)
+        {
+            y += a * (d[i] - y);
+            d[i] = y;
+        }
     }
 
     static float Osc(Wave w, float phase)

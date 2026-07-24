@@ -19,6 +19,11 @@ public class AudioManager : MonoBehaviour
         }
         Instance = this;
 
+        if (FindFirstObjectByType<AudioListener>() == null)
+        {
+            gameObject.AddComponent<AudioListener>();
+        }
+
         music = gameObject.AddComponent<AudioSource>();
         music.loop = true; music.playOnAwake = false;
 

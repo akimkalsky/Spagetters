@@ -99,7 +99,7 @@ public class StoreController : MonoBehaviour
         foreach (var it in items)
         {
             bool sold = it.soldOut();
-            it.label.text = sold ? $"{it.name}   —   SOLD" : $"{it.name}   —   ${it.price}";
+            it.label.text = sold ? $"{it.name}   -   SOLD" : $"{it.name}   -   ${it.price}";
             it.btn.interactable = !sold && Wallet.Money >= it.price;
         }
     }

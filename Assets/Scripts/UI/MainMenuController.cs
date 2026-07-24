@@ -48,7 +48,7 @@ public class MainMenuController : MonoBehaviour
         emblemRt = mark.rectTransform;
 
         UIFactory.Label(canvas.transform, "SPAGETTERS", 132, UIFactory.Parchment, new Vector2(0, 320));
-        UIFactory.Label(canvas.transform, "ten paces. one shot.", 44, UIFactory.Rust, new Vector2(0, 225));
+        // UIFactory.Label(canvas.transform, "ten paces. one shot.", 44, UIFactory.Rust, new Vector2(0, 225));
 
         UIFactory.MenuButton(canvas.transform, "DUEL", new Vector2(0, 130),
                              () => RivalSelectController.Instance.Open());
@@ -107,7 +107,7 @@ public class MainMenuController : MonoBehaviour
         UIFactory.Label(howTo.transform, "HOW TO PLAY", 90, UIFactory.Parchment, new Vector2(0, 280));
         UIFactory.Label(howTo.transform,
             "Walk out with WASD as the count ticks down.\nWhen it hits zero, DRAW is called.\nFire faster than your rival to live.",
-            44, UIFactory.Parchment, new Vector2(0, 40)).enableWordWrapping = true;
+            44, UIFactory.Parchment, new Vector2(0, 40)).textWrappingMode = TextWrappingModes.Normal;
         UIFactory.MenuButton(howTo.transform, "BACK", new Vector2(0, -260),
                              () => howTo.SetActive(false));
         howTo.SetActive(false);

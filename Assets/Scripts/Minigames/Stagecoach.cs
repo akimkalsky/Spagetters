@@ -269,7 +269,7 @@ public class Stagecoach : MonoBehaviour
     void UpdateHud()
     {
         int pips = Mathf.Clamp(Mathf.CeilToInt(posse / PosseStart * 6f), 0, 6);
-        posseLabel.text = "POSSE " + new string('●', 6 - pips) + new string('○', pips);
+        posseLabel.text = $"LEAD  {pips} / 6";
     }
 
     void End(bool escaped)

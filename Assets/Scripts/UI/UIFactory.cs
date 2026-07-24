@@ -75,7 +75,8 @@ public static class UIFactory
         t.fontSize = size;
         t.color = color;
         t.alignment = align;
-        t.enableWordWrapping = false;
+        t.raycastTarget = false;
+        t.textWrappingMode = TextWrappingModes.NoWrap;
         t.fontStyle = FontStyles.Bold;
         t.characterSpacing = 6f;
         if (Font() != null)

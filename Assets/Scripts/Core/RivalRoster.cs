@@ -22,12 +22,12 @@ public static class RivalRoster
 
     static void Build()
     {
-        var names = new[] { "Dead-Eye Cole", "Rattlesnake Rue", "Silent Sam", "Gambler Gus", "The Undertaker" };
+        var names = new[] { "Clyde Cooldown", "Splitsecond Sam", "Hurried Harry", "Rapid Riley", "Quickfire Quinn" };
         var tagline = new[] { "never missed a mark", "quick and mean", "lets his gun talk", "the house always wins", "digs graves for a living" };
         var taunt = new[] { "You picked the wrong day to die.", "I'll plant you 'fore you blink.", "...", "The odds ain't in your favor, friend.", "I already dug your grave." };
         var gloat = new[] { "Told ya. Never miss.", "Ssso long, partner.", ".", "House always wins.", "Rest easy now." };
         var death = new[] { "How... did you...", "You're faster'n me...", "!", "Bad beat...", "Even I meet my end." };
-        var coward = new[] { "...actually, I got somewhere to be.", "On second thought — nope.", "...", "Folded. Cashin' out.", "" };
+        var coward = new[] { "...actually, I got somewhere to be.", "On second thought, nope.", "...", "Folded. Cashin' out.", "" };
 
         rivals = new Rival[names.Length];
         for (int i = 0; i < names.Length; i++)

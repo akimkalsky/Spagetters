@@ -20,7 +20,7 @@ public class SettingsController : MonoBehaviour
     void Apply()
     {
         var a = AudioManager.Instance;
-        a?.SetMasterVolume(PlayerPrefs.GetFloat(KMaster, 1f));
+        a?.SetMasterVolume(PlayerPrefs.GetFloat(KMaster, 0.3f));
         a?.SetSfxVolume(PlayerPrefs.GetFloat(KSfx, 1f));
         a?.SetMusicVolume(PlayerPrefs.GetFloat(KMusic, 1f));
         Screen.fullScreen = PlayerPrefs.GetInt(KFull, 1) == 1;
@@ -36,7 +36,7 @@ public class SettingsController : MonoBehaviour
         UIFactory.FullScreenPanel(canvas.transform, new Color(0.08f, 0.05f, 0.04f, 1f));
         UIFactory.Label(canvas.transform, "SETTINGS", 96, UIFactory.Parchment, new Vector2(0, 340));
 
-        UIFactory.Slider(canvas.transform, "MASTER", PlayerPrefs.GetFloat(KMaster, 1f), new Vector2(0, 190),
+        UIFactory.Slider(canvas.transform, "MASTER", PlayerPrefs.GetFloat(KMaster, 0.3f), new Vector2(0, 190),
             v => Save(KMaster, v, () => AudioManager.Instance?.SetMasterVolume(v)));
         UIFactory.Slider(canvas.transform, "SFX", PlayerPrefs.GetFloat(KSfx, 1f), new Vector2(0, 110),
             v => Save(KSfx, v, () => { AudioManager.Instance?.SetSfxVolume(v); AudioManager.Instance?.PlaySfx("ui_move"); }));

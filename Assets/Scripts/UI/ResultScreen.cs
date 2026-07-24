@@ -40,7 +40,7 @@ public class ResultScreen : MonoBehaviour
             headline.color = UIFactory.Parchment;
             sub.text = r != null ? $"{r.Name} lost their nerve" : "lost their nerve";
             string cl = r != null ? r.CowardLine : "";
-            quoteTyper.Play(string.IsNullOrEmpty(cl) ? "" : $"{r.Name}: “{cl}”");
+            quoteTyper.Play(string.IsNullOrEmpty(cl) ? "" : $"{r.Name}: \"{cl}\"");
             return;
         }
 
@@ -51,7 +51,7 @@ public class ResultScreen : MonoBehaviour
         sub.text = flow.LastReaction >= 0f ? $"{flavour}   {flow.LastReaction:0.000}s" : flavour;
 
         string line = r == null ? "" : flow.PlayerWon ? r.DeathLine : r.Gloat;
-        quoteTyper.Play(string.IsNullOrEmpty(line) ? "" : $"{r.Name}: “{line}”");
+        quoteTyper.Play(string.IsNullOrEmpty(line) ? "" : $"{r.Name}: \"{line}\"");
     }
 
     void Build()

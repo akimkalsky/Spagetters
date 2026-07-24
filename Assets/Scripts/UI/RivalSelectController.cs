@@ -13,6 +13,7 @@ public class RivalSelectController : MonoBehaviour
     TMP_Text daylight;
     readonly List<RectTransform> posters = new();
     static Sprite dust;
+    static Sprite starSprite;
 
     void Awake() => Instance = this;
 
@@ -115,14 +116,24 @@ public class RivalSelectController : MonoBehaviour
         var port = new GameObject("Portrait").AddComponent<Image>();
         port.transform.SetParent(root, false);
         port.sprite = Bust(256, UIFactory.Ink, r.Seed);
+        port.raycastTarget = false;
         port.rectTransform.sizeDelta = new Vector2(190, 190);
-        port.rectTransform.anchoredPosition = new Vector2(0, 35);
+        port.rectTransform.anchoredPosition = new Vector2(0, 40);
 
-        UIFactory.Label(root, r.Name.ToUpper(), 26, UIFactory.Ink, new Vector2(0, -70));
-        UIFactory.Label(root, $"${r.Bounty:N0}", 32, UIFactory.Rust, new Vector2(0, -115));
+        UIFactory.Label(root, r.Name.ToUpper(), 26, UIFactory.Ink, new Vector2(0, -92));
+        UIFactory.Label(root, $"${r.Bounty:N0}", 32, UIFactory.Rust, new Vector2(0, -130));
         int stars = r.Index + 1;
-        UIFactory.Label(root, new string('★', stars) + new string('☆', 5 - stars), 24, UIFactory.Ink, new Vector2(0, -155));
-        var tag = UIFactory.Label(root, r.Tagline, 18, UIFactory.Rust, new Vector2(0, -195));
+        for (int s = 0; s < 5; s++)
+        {
+            var star = new GameObject("Star").AddComponent<Image>();
+            star.transform.SetParent(root, false);
+            star.sprite = StarSprite();
+            star.raycastTarget = false;
+            star.color = s < stars ? new Color(0.9f, 0.7f, 0.2f) : new Color(0.32f, 0.24f, 0.16f);
+            star.rectTransform.sizeDelta = new Vector2(26, 26);
+            star.rectTransform.anchoredPosition = new Vector2((s - 2) * 30f, -168);
+        }
+        var tag = UIFactory.Label(root, r.Tagline, 18, UIFactory.Rust, new Vector2(0, -202));
         tag.fontStyle = FontStyles.Italic;
 
         if (r.Defeated)
@@ -229,6 +240,15 @@ public class RivalSelectController : MonoBehaviour
         }
         dust = ProceduralTex.SoftDisc(64, Color.white);
         return dust;
+    }
+
+    static Sprite StarSprite()
+    {
+        if (starSprite == null)
+        {
+            starSprite = ProceduralTex.Star(64, Color.white);
+        }
+        return starSprite;
     }
 
     static Sprite Bust(int size, Color col, int seed)

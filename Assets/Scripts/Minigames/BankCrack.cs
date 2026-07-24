@@ -90,8 +90,11 @@ public class BankCrack : MonoBehaviour
         dial.sizeDelta = new Vector2(420, 420);
         dial.anchoredPosition = new Vector2(0, -30);
 
-        var pointer = UIFactory.Label(canvas.transform, "▼", 60, UIFactory.Rust, new Vector2(0, 210));
-        pointer.name = "Pointer";
+        var pointer = new GameObject("Pointer").AddComponent<Image>();
+        pointer.transform.SetParent(canvas.transform, false);
+        pointer.sprite = ProceduralTex.TriangleDown(48, UIFactory.Rust);
+        pointer.rectTransform.sizeDelta = new Vector2(46, 40);
+        pointer.rectTransform.anchoredPosition = new Vector2(0, 210);
 
         numberLabel = UIFactory.Label(canvas.transform, "0", 120, UIFactory.Parchment, new Vector2(0, -30));
         comboLabel = UIFactory.Label(canvas.transform, "", 54, UIFactory.Parchment, new Vector2(0, 250));

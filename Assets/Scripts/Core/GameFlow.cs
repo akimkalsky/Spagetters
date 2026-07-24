@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
 public enum GameState { Boot, MainMenu, Duel, Paused, Result, Minigame }
@@ -57,8 +58,43 @@ public class GameFlow : MonoBehaviour
         Spawn<SettingsController>("SettingsUI");
     }
 
-    void OnEnable() => GameEvents.DuelEnded += OnDuelEnded;
-    void OnDisable() => GameEvents.DuelEnded -= OnDuelEnded;
+    void OnEnable()
+    {
+        GameEvents.DuelEnded += OnDuelEnded;
+        SceneManager.sceneLoaded += EnforceSingletons;
+    }
+
+    void OnDisable()
+    {
+        GameEvents.DuelEnded -= OnDuelEnded;
+        SceneManager.sceneLoaded -= EnforceSingletons;
+    }
+
+    static void EnforceSingletons(Scene scene, LoadSceneMode mode)
+    {
+        var systems = FindObjectsByType<EventSystem>(FindObjectsSortMode.None);
+        for (int i = 1; i < systems.Length; i++)
+        {
+            Destroy(systems[i].gameObject);
+        }
+
+        var listeners = FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
+        if (listeners.Length > 1)
+        {
+            int keep = Array.FindIndex(listeners, l => l.GetComponent<Camera>() != null);
+            if (keep < 0)
+            {
+                keep = 0;
+            }
+            for (int i = 0; i < listeners.Length; i++)
+            {
+                if (i != keep)
+                {
+                    Destroy(listeners[i]); // drop the component, keep the camera
+                }
+            }
+        }
+    }
 
     void Start()
     {

@@ -326,7 +326,7 @@ public class TargetRange : MonoBehaviour
         comboLabel.text = combo > 1 ? $"x{combo}" : "";
         if (!reloading)
         {
-            ammoLabel.text = new string('●', ammo) + new string('○', Clip - ammo);
+            ammoLabel.text = $"AMMO  {ammo} / {Clip}";
         }
     }
 
