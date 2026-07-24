@@ -32,6 +32,15 @@ public class PlayerController : MonoBehaviour
         if (Keyboard.current == null)
             return;
 
+
+        // Lock player during duels
+        if (DuelManager.Instance != null &&
+            DuelManager.Instance.State != DuelManager.DuelState.None)
+        {
+            anim.PlayIdle();
+            return;
+        }
+
         // Forward / Back
         float forward = 0f;
 
@@ -86,7 +95,11 @@ public class PlayerController : MonoBehaviour
             GameManager.Instance.UseStep();
         }
 
-
+        if (DuelManager.Instance != null &&
+    DuelManager.Instance.State != DuelManager.DuelState.None)
+        {
+            return;
+        }
 
         // Look for a goon in front of the player
         Vector3 rayOrigin = transform.position + controller.center;
@@ -115,6 +128,12 @@ public class PlayerController : MonoBehaviour
                 goon.UpdateCountdown(remaining);
 
                 Debug.Log($"Goon spotted! Duel starts at {goon.duelDistance} steps.");
+                // Duel can start
+                if (remaining <= 0 &&
+                    Keyboard.current.spaceKey.wasPressedThisFrame)
+                {
+                    DuelManager.Instance.StartDuel(goon);
+                }
             }
             else
             {

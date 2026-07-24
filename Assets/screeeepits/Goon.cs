@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Goon : MonoBehaviour
 {
@@ -7,7 +8,14 @@ public class Goon : MonoBehaviour
     public int duelDistance = 5;
     public int rewardSteps = 8;
 
-    [Header("UI")]
+    [Header("Portrait")]
+    public Sprite portrait;
+
+    [Header("Dialogue")]
+    public string goonName = "Nelson";
+    public string[] introDialogue;
+
+    [Header("World UI")]
     public TMP_Text countdownText;
     public GameObject fightIcon;
 
