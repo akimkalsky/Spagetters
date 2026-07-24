@@ -58,6 +58,9 @@ public class PostFxController : MonoBehaviour
         grain.type.value = FilmGrainLookup.Medium1;
         grain.response.value = 0.8f;
 
+        var motionBlur = profile.Add<MotionBlur>(true);
+        motionBlur.intensity.value = 0f;
+
         var v = gameObject.AddComponent<Volume>();
         v.isGlobal = true;
         v.priority = 100f;

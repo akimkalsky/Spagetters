@@ -158,7 +158,7 @@ public class RivalSelectController : MonoBehaviour
     {
         RivalRoster.Select(r);
         Close();
-        GameFlow.Instance.StartDuel();
+        GameFlow.Instance.EnterWorld();
     }
 
     IEnumerator SlamSequence()

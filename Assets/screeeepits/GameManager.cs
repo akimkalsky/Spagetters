@@ -20,24 +20,37 @@ public class GameManager : MonoBehaviour
         if (steps <= 0)
             return;
 
-        steps--;
-        UpdateUI();
-
-        if (steps <= 0)
-        {
-            Debug.Log("Out of steps!");
-            // TODO: Lose game
-        }
+        SetSteps(steps - 1);
     }
 
     public void AddSteps(int amount)
     {
-        steps += amount;
+        SetSteps(steps + amount);
+    }
+
+    public void ResetTo(int value)
+    {
+        steps = Mathf.Max(0, value);
         UpdateUI();
+    }
+
+    void SetSteps(int value)
+    {
+        bool hadSteps = steps > 0;
+        steps = Mathf.Max(0, value);
+        UpdateUI();
+
+        if (steps <= 0 && hadSteps)
+        {
+            GameEvents.RaiseOutOfSteps();
+        }
     }
 
     void UpdateUI()
     {
-        stepText.text = $"Steps: {steps}";
+        if (stepText != null)
+        {
+            stepText.text = $"Steps: {steps}";
+        }
     }
 }

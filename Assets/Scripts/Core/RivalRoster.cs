@@ -37,7 +37,7 @@ public static class RivalRoster
                 Index = i,
                 Name = names[i],
                 Bounty = 250 * (i + 1) * (i + 1),
-                Reaction = Mathf.Lerp(0.55f, 0.2f, (float)i / (names.Length - 1)),
+                Reaction = Mathf.Lerp(0.45f, 0.18f, (float)i / (names.Length - 1)),
                 Seed = 101 + i * 7,
                 Defeated = PlayerPrefs.GetInt(Key(i), 0) == 1,
                 Tagline = tagline[i],

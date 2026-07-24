@@ -48,9 +48,8 @@ public class MainMenuController : MonoBehaviour
         emblemRt = mark.rectTransform;
 
         UIFactory.Label(canvas.transform, "SPAGETTERS", 132, UIFactory.Parchment, new Vector2(0, 320));
-        // UIFactory.Label(canvas.transform, "ten paces. one shot.", 44, UIFactory.Rust, new Vector2(0, 225));
 
-        UIFactory.MenuButton(canvas.transform, "DUEL", new Vector2(0, 130),
+        UIFactory.MenuButton(canvas.transform, "VENTURE OUT", new Vector2(0, 130),
                              () => RivalSelectController.Instance.Open());
         UIFactory.MenuButton(canvas.transform, "SIDE JOBS", new Vector2(0, 30),
                              () => MinigameSelectController.Instance.Open());

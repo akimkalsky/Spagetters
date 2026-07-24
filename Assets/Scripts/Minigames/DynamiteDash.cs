@@ -49,7 +49,7 @@ public class DynamiteDash : MonoBehaviour
 
         foreach (var c in coins) c.gameObject.SetActive(true);
         lootTotal = coins.Count;
-        player.position = new Vector3(0, 0.5f, MinZ + 1f);
+        player.position = new Vector3(0, 0.7f, MinZ + 1f);
         AudioManager.Instance?.PlayAmbient("wind", 0.15f);
     }
 
@@ -75,7 +75,7 @@ public class DynamiteDash : MonoBehaviour
         {
             var pos = new Vector3(
                 Mathf.Lerp(MinX + 1, MaxX - 1, (float)rnd.NextDouble()),
-                0.5f,
+                0.12f,
                 Mathf.Lerp(MinZ + 1, MaxZ - 1, (float)rnd.NextDouble()));
             var coin = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             coin.name = "Loot";
@@ -134,7 +134,7 @@ public class DynamiteDash : MonoBehaviour
         resultTitle = UIFactory.Label(resultPanel.transform, "", 150, UIFactory.Parchment, new Vector2(0, 200));
         resultSub = UIFactory.Label(resultPanel.transform, "", 48, UIFactory.Rust, new Vector2(0, 90));
         UIFactory.MenuButton(resultPanel.transform, "AGAIN", new Vector2(0, -40), Restart);
-        UIFactory.MenuButton(resultPanel.transform, "MENU", new Vector2(0, -150), Leave);
+        UIFactory.MenuButton(resultPanel.transform, GameFlow.Instance != null ? GameFlow.Instance.MinigameExitLabel : "MENU", new Vector2(0, -150), Leave);
         resultPanel.SetActive(false);
     }
 

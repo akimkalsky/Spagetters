@@ -12,14 +12,18 @@ public class GameAudio : MonoBehaviour
     void OnEnable()
     {
         GameEvents.StepsChanged += OnSteps;
+        GameEvents.Pace += OnPace;
         GameEvents.DrawWindowOpened += OnDraw;
+        GameEvents.Shot += OnShot;
         GameEvents.DuelEnded += OnDuelEnded;
     }
 
     void OnDisable()
     {
         GameEvents.StepsChanged -= OnSteps;
+        GameEvents.Pace -= OnPace;
         GameEvents.DrawWindowOpened -= OnDraw;
+        GameEvents.Shot -= OnShot;
         GameEvents.DuelEnded -= OnDuelEnded;
         if (GameFlow.Instance != null)
         {
@@ -34,7 +38,17 @@ public class GameAudio : MonoBehaviour
         {
             return;
         }
-        a.PlayAmbient("wind", s == GameState.Duel ? 0.35f : 0.18f);
+        bool inField = s == GameState.Duel || s == GameState.Explore;
+        a.PlayAmbient("wind", inField ? 0.35f : 0.18f);
+    }
+
+    void OnPace(int n)
+    {
+        if (n > 0)
+        {
+            AudioManager.Instance?.PlaySfx("tick");
+            AudioManager.Instance?.PlaySfx("footstep", 0.5f);
+        }
     }
 
     void OnSteps(int steps)
@@ -45,9 +59,10 @@ public class GameAudio : MonoBehaviour
 
     void OnDraw() => AudioManager.Instance?.PlaySfx("draw");
 
+    void OnShot() => AudioManager.Instance?.PlaySfx("gunshot");
+
     void OnDuelEnded(bool won, float reaction)
     {
-        AudioManager.Instance?.PlaySfx("gunshot");
         StartCoroutine(Sting(won));
     }
 

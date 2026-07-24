@@ -59,7 +59,7 @@ public class StoreController : MonoBehaviour
         AddItem("DAYLIGHT  +30s", 200, () => false,
             () => RunClock.Instance?.AddDaylight(30f), 170);
         AddItem("STEADY HAND", 400, () => Loadout.DrawAdvantage >= Loadout.MaxDrawAdvantage,
-            () => Loadout.DrawAdvantage = Mathf.Min(Loadout.MaxDrawAdvantage, Loadout.DrawAdvantage + 0.12f), 70);
+            () => Loadout.DrawAdvantage = Mathf.Min(Loadout.MaxDrawAdvantage, Loadout.DrawAdvantage + 0.04f), 70);
         AddItem("SECOND WIND  +60s", 320, () => false,
             () => RunClock.Instance?.AddDaylight(60f), -30);
         AddItem("SNAKE OIL  (?)", 100, () => false,
@@ -111,8 +111,8 @@ public class StoreController : MonoBehaviour
         {
             case 0: RunClock.Instance?.AddDaylight(45f); return "sunlight in a bottle!   +45s";
             case 1: RunClock.Instance?.AddDaylight(-30f); return "bad batch...   -30s";
-            case 2: Loadout.DrawAdvantage = Mathf.Min(Loadout.MaxDrawAdvantage, Loadout.DrawAdvantage + 0.12f); return "steady as a rock";
-            case 3: Loadout.DrawAdvantage = Mathf.Max(0f, Loadout.DrawAdvantage - 0.08f); return "the shakes set in...";
+            case 2: Loadout.DrawAdvantage = Mathf.Min(Loadout.MaxDrawAdvantage, Loadout.DrawAdvantage + 0.04f); return "steady as a rock";
+            case 3: Loadout.DrawAdvantage = Mathf.Max(0f, Loadout.DrawAdvantage - 0.04f); return "the shakes set in...";
             case 4: Wallet.Add(150); return "coins in the bottle!   +$150";
             default: return "tasted like turpentine. nothin'.";
         }

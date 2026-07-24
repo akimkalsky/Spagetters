@@ -30,7 +30,7 @@ public class PauseMenu : MonoBehaviour
             return;
         }
         var g = GameFlow.Instance;
-        if (kb.escapeKey.wasPressedThisFrame && (g.State == GameState.Duel || g.State == GameState.Paused))
+        if (kb.escapeKey.wasPressedThisFrame && (g.State == GameState.Duel || g.State == GameState.Explore || g.State == GameState.Paused))
         {
             g.TogglePause();
         }

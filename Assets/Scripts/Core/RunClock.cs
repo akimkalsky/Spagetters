@@ -11,6 +11,7 @@ public class RunClock : MonoBehaviour
 
     float daylight;
     bool running, runOver;
+    int shownSecond = -1;
 
     public bool Running => running;
     public string Clock => $"{(int)(daylight / 60f)}:{(int)(daylight % 60f):00}";
@@ -36,12 +37,30 @@ public class RunClock : MonoBehaviour
     {
         GameEvents.DuelStarted += OnDuelStarted;
         GameEvents.DuelEnded += OnDuelEnded;
+        GameEvents.OutOfSteps += OnOutOfSteps;
     }
 
     void OnDisable()
     {
         GameEvents.DuelStarted -= OnDuelStarted;
         GameEvents.DuelEnded -= OnDuelEnded;
+        GameEvents.OutOfSteps -= OnOutOfSteps;
+    }
+
+    void OnOutOfSteps()
+    {
+        if (running && !runOver)
+        {
+            EndRun(false, "OUT OF STEPS", "you ran the boot leather off your soles");
+        }
+    }
+
+    public void GameOver(string title, string sub)
+    {
+        if (!runOver)
+        {
+            EndRun(false, title, sub);
+        }
     }
 
     void OnDuelStarted()
@@ -98,16 +117,16 @@ public class RunClock : MonoBehaviour
         UpdateHud();
     }
 
-    void EndRun(bool won)
+    void EndRun(bool won, string title = null, string sub = null)
     {
         running = false;
         runOver = true;
         ShowHud(false);
         Time.timeScale = 0f;
         overCanvas.gameObject.SetActive(true);
-        overTitle.text = won ? "FASTEST GUN IN THE WEST" : "SUNDOWN";
+        overTitle.text = title ?? (won ? "FASTEST GUN IN THE WEST" : "SUNDOWN");
         overTitle.color = won ? UIFactory.Parchment : UIFactory.Rust;
-        overSub.text = won ? "you cleared the wall before dark" : "the sun set on your ambitions";
+        overSub.text = sub ?? (won ? "you cleared the wall before dark" : "the sun set on your ambitions");
         overStats.text = Summary(won);
         AudioManager.Instance?.PlaySfx(won ? "win" : "lose");
     }
@@ -136,8 +155,13 @@ public class RunClock : MonoBehaviour
         fill.rectTransform.sizeDelta = new Vector2(TrackW * frac, 26f);
         fill.color = Color.Lerp(new Color(0.7f, 0.15f, 0.05f), new Color(0.95f, 0.62f, 0.2f), frac);
         sun.anchoredPosition = new Vector2(-TrackW * 0.5f + TrackW * frac, 0f);
-        int mm = (int)(daylight / 60f), ss = (int)(daylight % 60f);
-        timeText.text = $"SUNDOWN  {mm}:{ss:00}";
+
+        int sec = (int)daylight;
+        if (sec != shownSecond)
+        {
+            shownSecond = sec;
+            timeText.text = $"SUNDOWN  {sec / 60}:{sec % 60:00}";
+        }
         Vultures(NightProgress);
     }
 
