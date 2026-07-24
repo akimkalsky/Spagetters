@@ -10,8 +10,21 @@ public class GameFlow : MonoBehaviour
 {
     public static GameFlow Instance { get; private set; }
 
-    public const string DuelScene = "OutdoorsScene";
+    public const string DefaultDuelScene = "OutdoorsScene";
     public const string MenuScene = "";
+
+    // Editor-only override
+    public static string DuelScene
+    {
+        get
+        {
+#if UNITY_EDITOR
+            return PlayerPrefs.GetString("dev.duelScene", DefaultDuelScene);
+#else
+            return DefaultDuelScene;
+#endif
+        }
+    }
 
     public GameState State { get; private set; } = GameState.Boot;
     public event Action<GameState> StateChanged;
