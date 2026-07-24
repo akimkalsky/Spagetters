@@ -12,13 +12,15 @@ public class PlayerController : MonoBehaviour
     private Vector3 velocity;
     public SpriteAnimation anim;
     private Goon currentTarget;
+    private string shownPrompt;
     public float sightDistance = 20f;
 
-    //steppies
     private Vector3 lastPosition;
     private float walkedDistance = 0f;
+    private float stuckTimer;
+    private Vector3 lastHitNormal;
 
-    public float stepDistance = 1f; // 1 Unity unit = 1 step
+    public float stepDistance = 1f;
 
     void Awake()
     {
@@ -29,10 +31,12 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (GameFlow.Instance != null && GameFlow.Instance.State != GameState.Explore)
+            return;
+
         if (Keyboard.current == null)
             return;
 
-        // Forward / Back
         float forward = 0f;
 
         if (Keyboard.current.wKey.isPressed)
@@ -53,7 +57,6 @@ public class PlayerController : MonoBehaviour
             anim.PlayIdle();
         }
 
-        // Rotate
         float turn = 0f;
 
         if (Keyboard.current.aKey.isPressed)
@@ -61,21 +64,39 @@ public class PlayerController : MonoBehaviour
         else if (Keyboard.current.dKey.isPressed)
             turn = 1f;
 
-        // Rotate player
         transform.Rotate(Vector3.up * turn * turnSpeed * Time.deltaTime);
 
-        // Gravity
         if (controller.isGrounded && velocity.y < 0)
             velocity.y = -2f;
 
         velocity.y += gravity * Time.deltaTime;
 
-        // Move in the direction the player is facing
         Vector3 motion = transform.forward * forward * moveSpeed;
         motion.y = velocity.y;
 
+        Vector3 preMove = transform.position;
         controller.Move(motion * Time.deltaTime);
-        // Count distance walked
+
+        Vector3 disp = transform.position - preMove;
+        disp.y = 0f;
+        if (Mathf.Abs(forward) > 0.01f && disp.magnitude < 0.01f && controller.isGrounded)
+        {
+            stuckTimer += Time.deltaTime;
+            if (stuckTimer > 0.3f)
+            {
+                Vector3 escape = lastHitNormal;
+                escape.y = 0f;
+                if (escape.sqrMagnitude > 0.001f)
+                {
+                    controller.Move(escape.normalized * moveSpeed * Time.deltaTime);
+                }
+            }
+        }
+        else
+        {
+            stuckTimer = 0f;
+        }
+
         walkedDistance += Vector3.Distance(transform.position, lastPosition);
         lastPosition = transform.position;
 
@@ -86,9 +107,6 @@ public class PlayerController : MonoBehaviour
             GameManager.Instance.UseStep();
         }
 
-
-
-        // Look for a goon in front of the player
         Vector3 rayOrigin = transform.position + controller.center;
         RaycastHit hit;
 
@@ -97,44 +115,100 @@ public class PlayerController : MonoBehaviour
             Debug.DrawRay(rayOrigin, transform.forward * sightDistance, Color.red);
 
             Goon goon = hit.collider.GetComponent<Goon>();
+            JobStation job = goon == null ? hit.collider.GetComponentInParent<JobStation>() : null;
+            int stepsAway = Mathf.CeilToInt(hit.distance / stepDistance);
 
             if (goon != null)
             {
-                // Hide previous target's UI
                 if (currentTarget != null && currentTarget != goon)
                     currentTarget.HideUI();
-
                 currentTarget = goon;
 
-                // Show countdown
-                float distance = hit.distance;
-
-                int stepsAway = Mathf.CeilToInt(distance / stepDistance);
                 int remaining = stepsAway - goon.duelDistance;
-
                 goon.UpdateCountdown(remaining);
+                SetPrompt(remaining <= 0 ? "◄  CLICK / E  TO DUEL  ►" : null);
 
-                Debug.Log($"Goon spotted! Duel starts at {goon.duelDistance} steps.");
+                if (remaining <= 0 && Clicked())
+                {
+                    StartShowdown(goon);
+                    return;
+                }
+            }
+            else if (job != null)
+            {
+                ClearTarget();
+                bool inRange = stepsAway <= job.interactDistance;
+                SetPrompt(inRange ? $"◄  CLICK / E:  {job.title}  ►" : null);
+                if (inRange && Clicked())
+                {
+                    SetPrompt(null);
+                    GameFlow.Instance.StartMinigame(job.minigameKey, job);
+                    return;
+                }
             }
             else
             {
-                if (currentTarget != null)
-                {
-                    currentTarget.HideUI();
-                    currentTarget = null;
-                }
+                SetPrompt(null);
+                ClearTarget();
             }
         }
         else
         {
             Debug.DrawRay(rayOrigin, transform.forward * sightDistance, Color.green);
-
-            if (currentTarget != null)
-            {
-                currentTarget.HideUI();
-                currentTarget = null;
-            }
+            SetPrompt(null);
+            ClearTarget();
         }
 
+    }
+
+    void OnControllerColliderHit(ControllerColliderHit hit) => lastHitNormal = hit.normal;
+
+    bool Clicked()
+    {
+        return (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+            || (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame);
+    }
+
+    void ClearTarget()
+    {
+        if (currentTarget != null)
+        {
+            currentTarget.HideUI();
+            currentTarget = null;
+        }
+    }
+
+    void SetPrompt(string p)
+    {
+        if (p == shownPrompt)
+        {
+            return;
+        }
+        shownPrompt = p;
+        GameEvents.RaisePrompt(p);
+    }
+
+    void StartShowdown(Goon goon)
+    {
+        SetPrompt(null);
+
+        var rival = goon.GetRival();
+        if (rival != null)
+        {
+            RivalRoster.Select(rival);
+        }
+
+        var duel = DuelController.EnsureInstance();
+        duel.playerActor = transform;
+        duel.rivalActor = goon.transform;
+        duel.paceStep = 0.3f;
+        duel.playerAnim = anim;
+        duel.rivalAnim = goon.GetComponentInChildren<SpriteAnimation>();
+
+        goon.HideUI();
+        if (GameFlow.Instance.BeginEncounter(goon))
+        {
+            duel.BeginDuel();
+        }
     }
 }

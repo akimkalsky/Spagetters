@@ -104,7 +104,7 @@ public class BankCrack : MonoBehaviour
         resultTitle = UIFactory.Label(resultPanel.transform, "", 150, UIFactory.Parchment, new Vector2(0, 200));
         resultSub = UIFactory.Label(resultPanel.transform, "", 48, UIFactory.Rust, new Vector2(0, 90));
         UIFactory.MenuButton(resultPanel.transform, "AGAIN", new Vector2(0, -40), Restart);
-        UIFactory.MenuButton(resultPanel.transform, "MENU", new Vector2(0, -150), Leave);
+        UIFactory.MenuButton(resultPanel.transform, GameFlow.Instance != null ? GameFlow.Instance.MinigameExitLabel : "MENU", new Vector2(0, -150), Leave);
         resultPanel.SetActive(false);
     }
 

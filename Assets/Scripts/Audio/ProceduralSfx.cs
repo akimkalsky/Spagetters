@@ -33,9 +33,14 @@ public static class ProceduralSfx
         }
     }
 
-    static AudioClip FromSamples(string name, float[] data, bool loop)
+    static AudioClip FromSamples(string name, float[] data, bool loop) => FromSamples(name, data, loop, 0.45f);
+
+    static AudioClip FromSamples(string name, float[] data, bool loop, float lowpass)
     {
-        Lowpass(data, 0.45f);
+        if (lowpass < 0.999f)
+        {
+            Lowpass(data, lowpass);
+        }
         var clip = AudioClip.Create(name, data.Length, 1, SR, false);
         clip.SetData(data, 0);
         return clip;
@@ -114,45 +119,53 @@ public static class ProceduralSfx
 
     static AudioClip DrawSting()
     {
-        int n = (int)(SR * 0.35f);
+        int n = (int)(SR * 0.26f);
         var d = new float[n];
-        float phase = 0f;
+        float ph = 0f;
         for (int i = 0; i < n; i++)
         {
             float t = (float)i / n;
-            float f = Mathf.Lerp(300f, 1600f, t * t);
-            phase += f / SR;
-            if (phase >= 1f)
+            float f = Mathf.Lerp(760f, 2000f, Mathf.Min(1f, t * 6f));
+            ph += f / SR;
+            if (ph >= 1f)
             {
-                phase -= 1f;
+                ph -= 1f;
             }
-            float env = Mathf.Sin(t * Mathf.PI);
-            d[i] = (Osc(Wave.Saw, phase) * 0.7f + Noise() * 0.15f) * env;
+            float tone = Mathf.Sin(ph * 2f * Mathf.PI) + Osc(Wave.Square, ph) * 0.22f;
+            float env = Mathf.Exp(-9f * t) * Mathf.Min(1f, i / 24f);
+            float spit = Noise() * Mathf.Exp(-34f * t) * 0.3f;
+            d[i] = tone * env * 0.8f + spit;
         }
-        Normalize(d, 0.85f);
-        return FromSamples("draw", d, false);
+        Normalize(d, 0.92f);
+        return FromSamples("draw", d, false, 0.72f);
     }
 
     static AudioClip Gunshot()
     {
-        int n = (int)(SR * 0.45f);
+        int n = (int)(SR * 0.5f);
         var d = new float[n];
-        float lp = 0f, thumbPhase = 0f;
+        float lp = 0f, bodyPh = 0f;
         for (int i = 0; i < n; i++)
         {
             float t = (float)i / n;
-            lp += 0.6f * (Noise() - lp);
-            float crack = lp * Mathf.Exp(-22f * t);
-            thumbPhase += 90f / SR;
-            if (thumbPhase >= 1f)
+
+            lp += 0.85f * (Noise() - lp);
+            float crack = lp * Mathf.Exp(-40f * t);
+
+            float spike = i < 70 ? Noise() * (1f - i / 70f) : 0f;
+
+            float bodyFreq = Mathf.Lerp(170f, 55f, Mathf.Min(1f, t * 5f));
+            bodyPh += bodyFreq / SR;
+            if (bodyPh >= 1f)
             {
-                thumbPhase -= 1f;
+                bodyPh -= 1f;
             }
-            float body = Mathf.Sin(thumbPhase * 2f * Mathf.PI) * Mathf.Exp(-9f * t);
-            d[i] = crack * 0.9f + body * 0.6f;
+            float body = Mathf.Sin(bodyPh * 2f * Mathf.PI) * Mathf.Exp(-11f * t);
+
+            d[i] = spike * 0.95f + crack * 1.0f + body * 0.75f;
         }
-        Normalize(d, 0.95f);
-        return FromSamples("gunshot", d, false);
+        Normalize(d, 1.0f);
+        return FromSamples("gunshot", d, false, 0.9f);
     }
 
     static AudioClip Explosion()
