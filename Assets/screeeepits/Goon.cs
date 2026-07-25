@@ -15,6 +15,7 @@ public class Goon : MonoBehaviour
     [Header("Story")]
     public bool useRivalRoster = true;
     public string customName = "";
+    public Sprite portrait;
 
     Vector3 fightIconBaseScale = Vector3.one;
 

@@ -19,4 +19,7 @@ public class Rival
     // Story mode
     public Sprite Portrait;
     public DialogueLine[] IntroDialogue;
+
+
+
 }

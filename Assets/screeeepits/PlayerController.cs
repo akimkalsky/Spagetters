@@ -206,9 +206,19 @@ public class PlayerController : MonoBehaviour
         duel.rivalAnim = goon.GetComponentInChildren<SpriteAnimation>();
 
         goon.HideUI();
-        if (GameFlow.Instance.BeginEncounter(goon))
+
+        if (GameSettings.StoryMode && DuelIntroUI.Instance != null)
         {
-            duel.BeginDuel();
+            // Let DuelIntroUI freeze the state and manage dialogue advancement
+            DuelIntroUI.Instance.Show(goon, duel);
+        }
+        else
+        {
+            // Arcade Mode: Start immediately
+            if (GameFlow.Instance != null && GameFlow.Instance.BeginEncounter(goon))
+            {
+                duel.BeginDuel();
+            }
         }
     }
 }
