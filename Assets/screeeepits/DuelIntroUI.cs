@@ -1,8 +1,9 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.InputSystem; // Needed for direct input checks
+using UnityEngine.InputSystem;
 
 public class DuelIntroUI : MonoBehaviour
 {
@@ -16,14 +17,21 @@ public class DuelIntroUI : MonoBehaviour
     public TMP_Text goonDialogue;
     public Image goonPortrait;
 
-    [Header("Settings")]
-    public float delayBeforeDuel = 0.5f;
+    [Header("Typewriter Settings")]
+    [Tooltip("Time in seconds between each character typed.")]
+    public float typingSpeed = 0.03f;
+    [Tooltip("Delay in seconds after dialogue finishes before the duel starts.")]
+    public float delayBeforeDuel = 0.1f;
 
     private DuelController duel;
     private Goon currentGoon;
     private bool isTransitioning = false;
     private bool isActive = false;
-    private int dialogueStep = 0;
+    private bool isTyping = false;
+    private int dialogueIndex = 0;
+    private List<Goon.DialogueLine> activeLines;
+
+    private Coroutine typingCoroutine;
 
     void Awake()
     {
@@ -33,16 +41,23 @@ public class DuelIntroUI : MonoBehaviour
 
     void Update()
     {
-        // Only check input while the dialogue is active and not in the ending transition
         if (!isActive || isTransitioning) return;
 
-        // Advance dialogue on Click, Space, or E press
         bool clicked = (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) ||
                        (Keyboard.current != null && (Keyboard.current.eKey.wasPressedThisFrame || Keyboard.current.spaceKey.wasPressedThisFrame));
 
         if (clicked)
         {
-            Next();
+            if (isTyping)
+            {
+                // If text is still typing, finish typing immediately on click
+                CompleteTypingImmediately();
+            }
+            else
+            {
+                // Otherwise move to the next line
+                Next();
+            }
         }
     }
 
@@ -52,70 +67,128 @@ public class DuelIntroUI : MonoBehaviour
         duel = duelController;
         isTransitioning = false;
         isActive = true;
-        dialogueStep = 0;
+        dialogueIndex = 0;
 
-        if (goonPortrait != null && goon.portrait != null)
+        if (goonPortrait != null)
         {
-            goonPortrait.sprite = goon.portrait;
+            if (goon.portrait != null)
+            {
+                goonPortrait.sprite = goon.portrait;
+                goonPortrait.gameObject.SetActive(true);
+            }
+            else
+            {
+                goonPortrait.gameObject.SetActive(false);
+            }
         }
 
-        // Freeze player movement/state right away!
         if (GameFlow.Instance != null)
         {
             GameFlow.Instance.BeginEncounter(goon);
         }
 
+        if (goon.customDialogue != null && goon.customDialogue.Count > 0)
+        {
+            activeLines = goon.customDialogue;
+        }
+        else
+        {
+            activeLines = GetDefaultLines();
+        }
+
         if (holder != null) holder.SetActive(true);
 
-        // Line 1: Player
-        ShowPlayerLine("I'm gonna beat you.");
+        DisplayCurrentLine();
     }
 
     public void Next()
     {
         if (isTransitioning) return;
 
-        dialogueStep++;
+        dialogueIndex++;
 
-        switch (dialogueStep)
+        if (dialogueIndex < activeLines.Count)
         {
-            case 1:
-                // Line 2: Enemy response
-                ShowGoonLine("We'll see about that.");
-                break;
-
-            case 2:
-                // Line 3: Player final response
-                ShowPlayerLine("Draw!");
-                break;
-
-            default:
-                // End dialogue sequence
-                StartCoroutine(TransitionToDuel());
-                break;
+            DisplayCurrentLine();
+        }
+        else
+        {
+            StartCoroutine(TransitionToDuel());
         }
     }
 
-    private void ShowPlayerLine(string text)
+    private void DisplayCurrentLine()
     {
-        playerPanel.SetActive(true);
-        goonPanel.SetActive(false);
-        playerDialogue.text = text;
+        if (typingCoroutine != null)
+        {
+            StopCoroutine(typingCoroutine);
+        }
+
+        Goon.DialogueLine currentLine = activeLines[dialogueIndex];
+
+        if (currentLine.isPlayer)
+        {
+            playerPanel.SetActive(true);
+            goonPanel.SetActive(false);
+            typingCoroutine = StartCoroutine(TypeText(playerDialogue, currentLine.text));
+        }
+        else
+        {
+            playerPanel.SetActive(false);
+            goonPanel.SetActive(true);
+            typingCoroutine = StartCoroutine(TypeText(goonDialogue, currentLine.text));
+        }
     }
 
-    private void ShowGoonLine(string text)
+    private IEnumerator TypeText(TMP_Text targetText, string fullText)
     {
-        playerPanel.SetActive(false);
-        goonPanel.SetActive(true);
-        goonDialogue.text = text;
+        isTyping = true;
+        targetText.text = "";
+
+        foreach (char letter in fullText.ToCharArray())
+        {
+            targetText.text += letter;
+            yield return new WaitForSeconds(typingSpeed);
+        }
+
+        isTyping = false;
+    }
+
+    private void CompleteTypingImmediately()
+    {
+        if (typingCoroutine != null)
+        {
+            StopCoroutine(typingCoroutine);
+        }
+
+        Goon.DialogueLine currentLine = activeLines[dialogueIndex];
+        if (currentLine.isPlayer)
+        {
+            playerDialogue.text = currentLine.text;
+        }
+        else
+        {
+            goonDialogue.text = currentLine.text;
+        }
+
+        isTyping = false;
+    }
+
+    private List<Goon.DialogueLine> GetDefaultLines()
+    {
+        return new List<Goon.DialogueLine>
+        {
+            new Goon.DialogueLine { isPlayer = true, text = "I'm gonna beat you." },
+            new Goon.DialogueLine { isPlayer = false, text = "We'll see about that." },
+            new Goon.DialogueLine { isPlayer = true, text = "Draw!" }
+        };
     }
 
     private IEnumerator TransitionToDuel()
     {
         isTransitioning = true;
-        isActive = false; // Stop listening for inputs
+        isActive = false;
 
-        // Hide speech bubbles
         playerPanel.SetActive(false);
         goonPanel.SetActive(false);
 
@@ -123,7 +196,6 @@ public class DuelIntroUI : MonoBehaviour
 
         if (holder != null) holder.SetActive(false);
 
-        // Start duel sequence
         if (duel != null)
         {
             duel.BeginDuel();

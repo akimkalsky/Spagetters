@@ -3626,6 +3626,7 @@ MonoBehaviour:
   useRivalRoster: 0
   customName: 
   portrait: {fileID: 0}
+  customDialogue: []
 --- !u!136 &715342636
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -3763,6 +3764,7 @@ MonoBehaviour:
   useRivalRoster: 0
   customName: 
   portrait: {fileID: 0}
+  customDialogue: []
 --- !u!136 &755841097
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -3903,8 +3905,9 @@ MonoBehaviour:
   countdownText: {fileID: 17712128}
   fightIcon: {fileID: 1895099598}
   useRivalRoster: 0
-  customName: 
-  portrait: {fileID: 0}
+  customName: Nine Lives Nelson
+  portrait: {fileID: 21300000, guid: f4bf0b11d77714c4a9ef86cbd0e7a9af, type: 3}
+  customDialogue: []
 --- !u!136 &830845327
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -4552,7 +4555,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &940292525
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5058,6 +5061,13 @@ MonoBehaviour:
   useRivalRoster: 0
   customName: On Time Oliver
   portrait: {fileID: 21300000, guid: 3262b854558baea4fa8a53c1dd300a4a, type: 3}
+  customDialogue:
+  - isPlayer: 0
+    text: WEEELLL
+  - isPlayer: 1
+    text: asdasdeqweqweqwe
+  - isPlayer: 0
+    text: weqweqweqweqweqweqwe
 --- !u!1001 &1273267484
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5314,6 +5324,7 @@ MonoBehaviour:
   useRivalRoster: 0
   customName: 
   portrait: {fileID: 0}
+  customDialogue: []
 --- !u!136 &1345338432
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -6711,6 +6722,7 @@ MonoBehaviour:
   goonPanel: {fileID: 852521062}
   goonDialogue: {fileID: 623247008}
   goonPortrait: {fileID: 24503938}
+  typingSpeed: 0.03
   delayBeforeDuel: 3
 --- !u!1 &1729931864
 GameObject:

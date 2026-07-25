@@ -1,8 +1,19 @@
+using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class Goon : MonoBehaviour
 {
+    // Struct nested inside Goon to prevent name collision errors!
+    [System.Serializable]
+    public struct DialogueLine
+    {
+        public bool isPlayer; // True = Player, False = Goon
+        [TextArea(2, 5)]
+        public string text;
+    }
+
     [Header("Gameplay")]
     public int duelDistance = 5;
     public int rewardSteps = 8;
@@ -17,6 +28,10 @@ public class Goon : MonoBehaviour
     public string customName = "";
     public Sprite portrait;
 
+    [Header("Custom Dialogue (Optional)")]
+    [Tooltip("Add custom back-and-forth dialogue lines in order.")]
+    public List<DialogueLine> customDialogue = new List<DialogueLine>();
+
     Vector3 fightIconBaseScale = Vector3.one;
 
     private void Start()
@@ -24,9 +39,13 @@ public class Goon : MonoBehaviour
         if (fightIcon != null)
         {
             fightIconBaseScale = fightIcon.transform.localScale;
+            fightIcon.SetActive(false);
         }
-        fightIcon.SetActive(false);
-        countdownText.gameObject.SetActive(false);
+
+        if (countdownText != null)
+        {
+            countdownText.gameObject.SetActive(false);
+        }
 
         if (useRivalRoster)
         {
@@ -51,7 +70,7 @@ public class Goon : MonoBehaviour
     public Rival GetRival()
     {
         var all = RivalRoster.All;
-        if (all.Count == 0)
+        if (all == null || all.Count == 0)
         {
             return RivalRoster.Current;
         }
@@ -62,22 +81,28 @@ public class Goon : MonoBehaviour
     {
         if (remainingSteps <= 0)
         {
-            countdownText.gameObject.SetActive(false);
-            fightIcon.SetActive(true);
-            fightIcon.transform.localScale = fightIconBaseScale * (1f + 0.18f * Mathf.Sin(Time.unscaledTime * 7f));
+            if (countdownText != null) countdownText.gameObject.SetActive(false);
+            if (fightIcon != null)
+            {
+                fightIcon.SetActive(true);
+                fightIcon.transform.localScale = fightIconBaseScale * (1f + 0.18f * Mathf.Sin(Time.unscaledTime * 7f));
+            }
         }
         else
         {
-            fightIcon.SetActive(false);
-            countdownText.gameObject.SetActive(true);
-            countdownText.text = remainingSteps.ToString();
+            if (fightIcon != null) fightIcon.SetActive(false);
+            if (countdownText != null)
+            {
+                countdownText.gameObject.SetActive(true);
+                countdownText.text = remainingSteps.ToString();
+            }
         }
     }
 
     public void HideUI()
     {
-        fightIcon.SetActive(false);
-        countdownText.gameObject.SetActive(false);
+        if (fightIcon != null) fightIcon.SetActive(false);
+        if (countdownText != null) countdownText.gameObject.SetActive(false);
     }
 
     public void Defeat()
