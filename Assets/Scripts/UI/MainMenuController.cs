@@ -65,13 +65,11 @@ public class MainMenuController : MonoBehaviour
     });
         UIFactory.MenuButton(canvas.transform, "SIDE JOBS", new Vector2(0, -70),
                              () => MinigameSelectController.Instance.Open());
-        UIFactory.MenuButton(canvas.transform, "STORE", new Vector2(0, -170),
-                             () => StoreController.Instance.Open());
-        UIFactory.MenuButton(canvas.transform, "HOW TO PLAY", new Vector2(0, -270),
+        UIFactory.MenuButton(canvas.transform, "HOW TO PLAY", new Vector2(0, -170),
                              () => howTo.SetActive(true));
-        UIFactory.MenuButton(canvas.transform, "SETTINGS", new Vector2(0, -370),
+        UIFactory.MenuButton(canvas.transform, "SETTINGS", new Vector2(0, -270),
                              () => SettingsController.Instance.Open());
-        UIFactory.MenuButton(canvas.transform, "QUIT", new Vector2(0, -470),
+        UIFactory.MenuButton(canvas.transform, "QUIT", new Vector2(0, -370),
                              () => GameFlow.Instance.Quit());
 
         BuildHowTo();
@@ -113,14 +111,26 @@ public class MainMenuController : MonoBehaviour
 
     void BuildHowTo()
     {
-        var panel = UIFactory.FullScreenPanel(canvas.transform, UIFactory.Dim);
+        var panel = UIFactory.FullScreenPanel(canvas.transform, new Color(0.09f, 0.06f, 0.05f, 1f));
         howTo = panel.gameObject;
-        UIFactory.Label(howTo.transform, "HOW TO PLAY", 90, UIFactory.Parchment, new Vector2(0, 280));
+        UIFactory.Label(howTo.transform, "HOW TO PLAY", 88, UIFactory.Parchment, new Vector2(0, 340));
         UIFactory.Label(howTo.transform,
-            "Walk out with WASD as the count ticks down.\nWhen it hits zero, DRAW is called.\nFire faster than your rival to live.",
-            44, UIFactory.Parchment, new Vector2(0, 40)).textWrappingMode = TextWrappingModes.Normal;
-        UIFactory.MenuButton(howTo.transform, "BACK", new Vector2(0, -260),
+            "Walk with W and S, turn with A and D.\n" +
+            "Approach a rival and press E or click to call them out.\n" +
+            "Walk the paces as the count ticks down.\n" +
+            "On DRAW, fire faster than your rival - but never before, or you're buried.\n" +
+            "Take side jobs for cash and steps; spend cash at the store in the pause menu.\n" +
+            "Clear every rival before sundown.",
+            40, UIFactory.Parchment, new Vector2(0, 30)).textWrappingMode = TextWrappingModes.Normal;
+        UIFactory.MenuButton(howTo.transform, "CONTINUE", new Vector2(0, -320),
                              () => howTo.SetActive(false));
-        howTo.SetActive(false);
+
+        bool firstTime = PlayerPrefs.GetInt("seen_howto", 0) == 0;
+        howTo.SetActive(firstTime);
+        if (firstTime)
+        {
+            PlayerPrefs.SetInt("seen_howto", 1);
+            PlayerPrefs.Save();
+        }
     }
 }

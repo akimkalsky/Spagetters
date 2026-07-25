@@ -18,7 +18,7 @@ public class JobSpawner : MonoBehaviour
 
     void Start()
     {
-        if (jobs == null || jobs.Length == 0)
+        if (GameSettings.StoryMode || jobs == null || jobs.Length == 0)
         {
             return;
         }

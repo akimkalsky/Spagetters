@@ -32,7 +32,11 @@ public class WantedBoard : MonoBehaviour
 
     void OnState(GameState s)
     {
-        bool show = s == GameState.Explore || s == GameState.Duel;
+        if (canvas == null)
+        {
+            return;
+        }
+        bool show = !GameSettings.StoryMode && (s == GameState.Explore || s == GameState.Duel);
         canvas.gameObject.SetActive(show);
         if (show)
         {

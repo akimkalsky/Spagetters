@@ -19,7 +19,7 @@ public class RivalIndicator : MonoBehaviour
     {
         canvas = UIFactory.CreateOverlayCanvas("RivalIndicatorCanvas", 48, transform);
         canvasRT = (RectTransform)canvas.transform;
-        marker = UIFactory.Label(canvas.transform, "➤", 60, UIFactory.Rust, Vector2.zero);
+        marker = UIFactory.Label(canvas.transform, "»", 60, UIFactory.Rust, Vector2.zero);
         var rt = marker.rectTransform;
         rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
         marker.gameObject.SetActive(false);
@@ -106,12 +106,11 @@ public class RivalIndicator : MonoBehaviour
         float angle = 0f;
         if (onScreen)
         {
-            marker.text = "▾";
+            angle = -90f;
             screenPoint = new Vector2(sp.x, sp.y + 44f);
         }
         else
         {
-            marker.text = "➤";
             var center = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
             Vector2 dir = new Vector2(sp.x, sp.y) - center;
             if (dir.sqrMagnitude < 0.001f)

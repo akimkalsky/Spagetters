@@ -39,6 +39,7 @@ public class GameManager : MonoBehaviour
         bool hadSteps = steps > 0;
         steps = Mathf.Max(0, value);
         UpdateUI();
+        GameEvents.RaiseStepsChanged(steps);
 
         if (steps <= 0 && hadSteps)
         {

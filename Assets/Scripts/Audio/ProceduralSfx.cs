@@ -29,6 +29,14 @@ public static class ProceduralSfx
             case "win":        return Chord(new[] { 523.25f, 659.25f, 783.99f }, 0.7f, false);
             case "lose":       return Chord(new[] { 349.23f, 261.63f, 196f }, 0.9f, true);
             case "wind":       return Wind(4f);
+            case "coward":     return Coward();
+            case "streak":     return Streak();
+            case "feint":      return Feint();
+            case "caw":        return Caw();
+            case "bell":       return Bell();
+            case "whoosh":     return Whoosh();
+            case "fail":       return Fail();
+            case "riser":      return Riser();
             default:           return null;
         }
     }
@@ -240,6 +248,192 @@ public static class ProceduralSfx
         }
         Normalize(d, 0.8f);
         return FromSamples("chord", d, false);
+    }
+
+    static AudioClip Coward()
+    {
+        int n = (int)(SR * 0.55f);
+        var d = new float[n];
+        float ph = 0f;
+        for (int i = 0; i < n; i++)
+        {
+            float t = (float)i / n;
+            float f = Mathf.Lerp(1400f, 320f, t * t);
+            f *= 1f + 0.03f * Mathf.Sin(t * 40f);
+            ph += f / SR;
+            if (ph >= 1f)
+            {
+                ph -= 1f;
+            }
+            float env = Mathf.Min(1f, i / 400f) * Mathf.Exp(-1.4f * t);
+            d[i] = Osc(Wave.Triangle, ph) * env * 0.7f;
+        }
+        Normalize(d, 0.7f);
+        return FromSamples("coward", d, false, 0.9f);
+    }
+
+    static AudioClip Streak()
+    {
+        float[] notes = { 784f, 988f, 1319f };
+        int per = (int)(SR * 0.09f);
+        int n = per * notes.Length + (int)(SR * 0.16f);
+        var d = new float[n];
+        for (int k = 0; k < notes.Length; k++)
+        {
+            float ph = 0f;
+            int start = k * per;
+            int len = (int)(SR * 0.2f);
+            for (int j = 0; j < len && start + j < n; j++)
+            {
+                float t = (float)j / len;
+                ph += notes[k] / SR;
+                if (ph >= 1f)
+                {
+                    ph -= 1f;
+                }
+                float env = Mathf.Exp(-6f * t) * Mathf.Min(1f, j / 20f);
+                d[start + j] += (Osc(Wave.Triangle, ph) + Osc(Wave.Square, ph) * 0.2f) * env * 0.5f;
+            }
+        }
+        Normalize(d, 0.8f);
+        return FromSamples("streak", d, false, 1f);
+    }
+
+    static AudioClip Feint()
+    {
+        int n = (int)(SR * 0.09f);
+        var d = new float[n];
+        float ph = 0f;
+        for (int i = 0; i < n; i++)
+        {
+            float t = (float)i / n;
+            float f = Mathf.Lerp(500f, 360f, t);
+            ph += f / SR;
+            if (ph >= 1f)
+            {
+                ph -= 1f;
+            }
+            float env = Mathf.Exp(-10f * t) * Mathf.Min(1f, i / 30f);
+            d[i] = Osc(Wave.Triangle, ph) * env * 0.4f;
+        }
+        return FromSamples("feint", d, false, 0.4f);
+    }
+
+    static AudioClip Caw()
+    {
+        int n = (int)(SR * 0.5f);
+        var d = new float[n];
+        float ph = 0f, lp = 0f;
+        for (int i = 0; i < n; i++)
+        {
+            float t = (float)i / n;
+            float f = Mathf.Lerp(900f, 520f, Mathf.Min(1f, t * 1.5f));
+            ph += f / SR;
+            if (ph >= 1f)
+            {
+                ph -= 1f;
+            }
+            lp += 0.5f * (Noise() - lp);
+            float gate = 0.6f + 0.4f * Mathf.Sin(t * 30f);
+            float env = Mathf.Min(1f, i / 200f) * Mathf.Exp(-3f * t);
+            d[i] = (Osc(Wave.Saw, ph) * 0.7f + lp * 0.4f) * gate * env * 0.7f;
+        }
+        Normalize(d, 0.75f);
+        return FromSamples("caw", d, false, 0.6f);
+    }
+
+    static AudioClip Bell()
+    {
+        int n = (int)(SR * 2.2f);
+        var d = new float[n];
+        float fund = 293f;
+        float[] ratios = { 0.5f, 1f, 1.19f, 1.56f, 2f, 2.66f, 3.0f };
+        float[] amps = { 0.4f, 1f, 0.6f, 0.5f, 0.4f, 0.25f, 0.2f };
+        float[] decay = { 1.2f, 1.6f, 2.2f, 2.8f, 3.2f, 4f, 4.5f };
+        var ph = new float[ratios.Length];
+        for (int i = 0; i < n; i++)
+        {
+            float t = (float)i / SR;
+            float s = 0f;
+            for (int k = 0; k < ratios.Length; k++)
+            {
+                ph[k] += fund * ratios[k] / SR;
+                if (ph[k] >= 1f)
+                {
+                    ph[k] -= 1f;
+                }
+                s += Mathf.Sin(ph[k] * 2f * Mathf.PI) * amps[k] * Mathf.Exp(-decay[k] * t);
+            }
+            d[i] = s * Mathf.Min(1f, i / 40f) * 0.3f;
+        }
+        Normalize(d, 0.85f);
+        return FromSamples("bell", d, false, 1f);
+    }
+
+    static AudioClip Whoosh()
+    {
+        int n = (int)(SR * 0.7f);
+        var d = new float[n];
+        float lp = 0f;
+        for (int i = 0; i < n; i++)
+        {
+            float t = (float)i / n;
+            float a = Mathf.Lerp(0.25f, 0.02f, t);
+            lp += a * (Noise() - lp);
+            d[i] = lp * Mathf.Sin(Mathf.PI * t) * 1.2f;
+        }
+        Normalize(d, 0.7f);
+        return FromSamples("whoosh", d, false, 1f);
+    }
+
+    static AudioClip Fail()
+    {
+        float[] notes = { 330f, 294f, 262f, 196f };
+        int per = (int)(SR * 0.14f);
+        int n = per * notes.Length + (int)(SR * 0.12f);
+        var d = new float[n];
+        for (int k = 0; k < notes.Length; k++)
+        {
+            float ph = 0f;
+            int start = k * per;
+            int len = (int)(SR * 0.22f);
+            for (int j = 0; j < len && start + j < n; j++)
+            {
+                float t = (float)j / len;
+                float f = notes[k] * Mathf.Lerp(1f, 0.94f, t);
+                ph += f / SR;
+                if (ph >= 1f)
+                {
+                    ph -= 1f;
+                }
+                float env = Mathf.Min(1f, j / 40f) * Mathf.Exp(-3.5f * t);
+                d[start + j] += (Osc(Wave.Saw, ph) * 0.6f + Osc(Wave.Triangle, ph) * 0.4f) * env * 0.5f;
+            }
+        }
+        Normalize(d, 0.8f);
+        return FromSamples("fail", d, false, 0.7f);
+    }
+
+    static AudioClip Riser()
+    {
+        int n = (int)(SR * 1.6f);
+        var d = new float[n];
+        float ph = 0f, lp = 0f;
+        for (int i = 0; i < n; i++)
+        {
+            float t = (float)i / n;
+            float f = Mathf.Lerp(110f, 440f, t * t);
+            ph += f / SR;
+            if (ph >= 1f)
+            {
+                ph -= 1f;
+            }
+            lp += 0.03f * (Noise() - lp);
+            float env = Mathf.Min(1f, t * 3f) * Mathf.Min(1f, (1f - t) * 6f);
+            d[i] = (Osc(Wave.Saw, ph) * 0.5f + lp * 0.5f) * env * 0.6f;
+        }
+        Normalize(d, 0.65f);
+        return FromSamples("riser", d, false, 0.5f);
     }
 
     static AudioClip Wind(float dur)

@@ -82,7 +82,7 @@ public class HUDController : MonoBehaviour
         }
 
         nameLabel.text = duel ? displayName : "";
-        nameLabel.gameObject.SetActive(duel && !string.IsNullOrEmpty(displayName));
+        nameLabel.gameObject.SetActive(duel && !GameSettings.StoryMode && !string.IsNullOrEmpty(displayName));
     }
 
     void Build()

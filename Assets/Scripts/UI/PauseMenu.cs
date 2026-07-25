@@ -40,14 +40,16 @@ public class PauseMenu : MonoBehaviour
     {
         canvas = UIFactory.CreateOverlayCanvas("PauseCanvas", 200, transform);
         UIFactory.FullScreenPanel(canvas.transform, UIFactory.Dim);
-        UIFactory.Label(canvas.transform, "PAUSED", 110, UIFactory.Parchment, new Vector2(0, 260));
-        UIFactory.MenuButton(canvas.transform, "RESUME", new Vector2(0, 90),
+        UIFactory.Label(canvas.transform, "PAUSED", 110, UIFactory.Parchment, new Vector2(0, 300));
+        UIFactory.MenuButton(canvas.transform, "RESUME", new Vector2(0, 140),
                              () => GameFlow.Instance.TogglePause());
-        UIFactory.MenuButton(canvas.transform, "SETTINGS", new Vector2(0, -20),
+        UIFactory.MenuButton(canvas.transform, "GENERAL STORE", new Vector2(0, 40),
+                             () => StoreController.Instance.Open());
+        UIFactory.MenuButton(canvas.transform, "SETTINGS", new Vector2(0, -60),
                              () => SettingsController.Instance.Open());
-        UIFactory.MenuButton(canvas.transform, "MAIN MENU", new Vector2(0, -130),
+        UIFactory.MenuButton(canvas.transform, "MAIN MENU", new Vector2(0, -160),
                              () => GameFlow.Instance.ToMainMenu());
-        UIFactory.MenuButton(canvas.transform, "QUIT", new Vector2(0, -240),
+        UIFactory.MenuButton(canvas.transform, "QUIT", new Vector2(0, -260),
                              () => GameFlow.Instance.Quit());
     }
 }

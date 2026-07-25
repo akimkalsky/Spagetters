@@ -8,6 +8,12 @@ public class JobStation : MonoBehaviour
 
     void Start()
     {
+        if (GameSettings.StoryMode)
+        {
+            gameObject.SetActive(false);
+            return;
+        }
+
         gameObject.AddComponent<NpcNameTag>().Init(title);
 
         foreach (var col in GetComponentsInChildren<Collider>())

@@ -14,7 +14,6 @@ public class MinigameSelectController : MonoBehaviour
     };
 
     Canvas canvas;
-    TMP_Text daylight;
 
     void Awake() => Instance = this;
 
@@ -43,23 +42,11 @@ public class MinigameSelectController : MonoBehaviour
     public void Open() => canvas.gameObject.SetActive(true);
     public void Close() => canvas.gameObject.SetActive(false);
 
-    void Update()
-    {
-        if (!canvas.gameObject.activeSelf)
-        {
-            return;
-        }
-        var rc = RunClock.Instance;
-        string sun = rc != null && rc.Running ? "SUNDOWN  " + rc.Clock + "     " : "";
-        daylight.text = sun + $"${Wallet.Money}";
-    }
-
     void Build()
     {
         canvas = UIFactory.CreateOverlayCanvas("MinigameSelectCanvas", 106, transform);
         UIFactory.FullScreenPanel(canvas.transform, new Color(0.09f, 0.06f, 0.05f, 1f));
         UIFactory.Label(canvas.transform, "SIDE JOBS", 96, UIFactory.Parchment, new Vector2(0, 340));
-        daylight = UIFactory.Readout(canvas.transform);
 
         float y = 150f;
         foreach (var g in Games)

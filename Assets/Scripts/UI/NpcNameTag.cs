@@ -30,7 +30,7 @@ public class NpcNameTag : MonoBehaviour
         {
             return;
         }
-        text.text = boss ? "☠ " + baseLabel : baseLabel;
+        text.text = boss ? "† " + baseLabel : baseLabel;
         text.color = boss ? new Color(0.92f, 0.26f, 0.2f) : UIFactory.Parchment;
     }
 
