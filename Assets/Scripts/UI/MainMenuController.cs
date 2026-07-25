@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.UI;
 
 public class MainMenuController : MonoBehaviour
@@ -50,16 +51,21 @@ public class MainMenuController : MonoBehaviour
         UIFactory.Label(canvas.transform, "SPAGETTERS", 132, UIFactory.Parchment, new Vector2(0, 320));
 
         UIFactory.MenuButton(canvas.transform, "VENTURE OUT", new Vector2(0, 130),
-                             () => RivalSelectController.Instance.Open());
-        UIFactory.MenuButton(canvas.transform, "SIDE JOBS", new Vector2(0, 30),
+                             () => RivalSelectController.Instance.Open()); UIFactory.MenuButton(canvas.transform, "STORY MODE", new Vector2(0, 30),
+    () =>
+    {
+        GameSettings.StoryMode = true;
+        GameFlow.Instance.EnterWorld();
+    });
+        UIFactory.MenuButton(canvas.transform, "SIDE JOBS", new Vector2(0, -70),
                              () => MinigameSelectController.Instance.Open());
-        UIFactory.MenuButton(canvas.transform, "STORE", new Vector2(0, -70),
+        UIFactory.MenuButton(canvas.transform, "STORE", new Vector2(0, -170),
                              () => StoreController.Instance.Open());
-        UIFactory.MenuButton(canvas.transform, "HOW TO PLAY", new Vector2(0, -170),
+        UIFactory.MenuButton(canvas.transform, "HOW TO PLAY", new Vector2(0, -270),
                              () => howTo.SetActive(true));
-        UIFactory.MenuButton(canvas.transform, "SETTINGS", new Vector2(0, -270),
+        UIFactory.MenuButton(canvas.transform, "SETTINGS", new Vector2(0, -370),
                              () => SettingsController.Instance.Open());
-        UIFactory.MenuButton(canvas.transform, "QUIT", new Vector2(0, -370),
+        UIFactory.MenuButton(canvas.transform, "QUIT", new Vector2(0, -470),
                              () => GameFlow.Instance.Quit());
 
         BuildHowTo();

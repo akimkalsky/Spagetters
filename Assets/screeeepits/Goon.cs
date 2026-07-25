@@ -12,6 +12,10 @@ public class Goon : MonoBehaviour
     public TMP_Text countdownText;
     public GameObject fightIcon;
 
+    [Header("Story")]
+    public bool useRivalRoster = true;
+    public string customName = "";
+
     Vector3 fightIconBaseScale = Vector3.one;
 
     private void Start()
@@ -23,10 +27,18 @@ public class Goon : MonoBehaviour
         fightIcon.SetActive(false);
         countdownText.gameObject.SetActive(false);
 
-        var r = GetRival();
-        if (r != null)
+        if (useRivalRoster)
         {
-            gameObject.AddComponent<NpcNameTag>().Init(r.Name);
+            var r = GetRival();
+
+            if (r != null)
+            {
+                gameObject.AddComponent<NpcNameTag>().Init(r.Name);
+            }
+        }
+        else if (!string.IsNullOrWhiteSpace(customName))
+        {
+            gameObject.AddComponent<NpcNameTag>().Init(customName);
         }
 
         foreach (var col in GetComponentsInChildren<Collider>())
