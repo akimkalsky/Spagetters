@@ -50,7 +50,7 @@ public class GameManager : MonoBehaviour
     {
         if (stepText != null)
         {
-            stepText.text = $"Steps: {steps}";
+            stepText.text = $"Paces: {steps}";
         }
     }
 }

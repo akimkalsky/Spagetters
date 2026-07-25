@@ -26,6 +26,8 @@ public class Goon : MonoBehaviour
     [Header("Story")]
     public bool useRivalRoster = true;
     public string customName = "";
+    [TextArea(2, 4)]
+    public string customTaunt = ""; // Custom taunt line for the Intro Card!
     public Sprite portrait;
 
     [Header("Custom Dialogue (Optional)")]
@@ -110,4 +112,43 @@ public class Goon : MonoBehaviour
         HideUI();
         gameObject.SetActive(false);
     }
+
+    public string DisplayName
+    {
+        get
+        {
+            if (useRivalRoster)
+            {
+                var rival = GetRival();
+                if (rival != null && !string.IsNullOrWhiteSpace(rival.Name))
+                    return rival.Name;
+            }
+
+            if (!string.IsNullOrWhiteSpace(customName))
+                return customName;
+
+            return "GOON";
+        }
+    }
+
+
+    public string DisplayTaunt
+    {
+        get
+        {
+            // 1. Use Goon's custom taunt if provided
+            if (!string.IsNullOrWhiteSpace(customTaunt))
+                return customTaunt;
+
+            // 2. Fall back to RivalRoster taunt
+            if (useRivalRoster)
+            {
+                var r = GetRival();
+                if (r != null) return Cowardice.Fleeing ? r.CowardLine : r.Taunt;
+            }
+
+            return "";
+        }
+    }
+
 }

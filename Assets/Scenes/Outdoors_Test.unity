@@ -3625,6 +3625,7 @@ MonoBehaviour:
   fightIcon: {fileID: 869415401}
   useRivalRoster: 0
   customName: 
+  customTaunt: 
   portrait: {fileID: 0}
   customDialogue: []
 --- !u!136 &715342636
@@ -3763,6 +3764,7 @@ MonoBehaviour:
   fightIcon: {fileID: 1273267486}
   useRivalRoster: 0
   customName: 
+  customTaunt: 
   portrait: {fileID: 0}
   customDialogue: []
 --- !u!136 &755841097
@@ -3906,6 +3908,7 @@ MonoBehaviour:
   fightIcon: {fileID: 1895099598}
   useRivalRoster: 0
   customName: Nine Lives Nelson
+  customTaunt: 
   portrait: {fileID: 21300000, guid: f4bf0b11d77714c4a9ef86cbd0e7a9af, type: 3}
   customDialogue: []
 --- !u!136 &830845327
@@ -5060,6 +5063,7 @@ MonoBehaviour:
   fightIcon: {fileID: 1478687923}
   useRivalRoster: 0
   customName: On Time Oliver
+  customTaunt: Never early, never late...always on time.
   portrait: {fileID: 21300000, guid: 3262b854558baea4fa8a53c1dd300a4a, type: 3}
   customDialogue:
   - isPlayer: 0
@@ -5323,6 +5327,7 @@ MonoBehaviour:
   fightIcon: {fileID: 518754665}
   useRivalRoster: 0
   customName: 
+  customTaunt: 
   portrait: {fileID: 0}
   customDialogue: []
 --- !u!136 &1345338432

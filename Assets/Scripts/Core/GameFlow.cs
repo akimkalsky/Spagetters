@@ -45,7 +45,7 @@ public class GameFlow : MonoBehaviour
     public float LastReaction { get; private set; } = -1f;
     public bool LastWasCoward { get; private set; }
 
-    Goon activeGoon;
+    public Goon activeGoon;
     GameState prePause = GameState.Explore;
     bool minigameFromWorld;
     JobStation pendingJob;
@@ -172,7 +172,21 @@ public class GameFlow : MonoBehaviour
         activeGoon = goon;
         Time.timeScale = 1f;
         SetState(GameState.Duel);
-        GameEvents.RaiseRivalIntro(r != null ? r.Index + 1 : 1, RivalRoster.Count, r != null ? r.Name : null);
+
+        if (GameSettings.StoryMode)
+        {
+            // Story Mode: Hide "RIVAL 1/5" counter, just show the Goon's Name!
+            GameEvents.RaiseRivalIntro(0, 0, goon.DisplayName);
+        }
+        else
+        {
+            // Arcade Mode: Get current rival number and total directly from RivalRoster
+            int curIndex = r != null ? r.Index + 1 : 1;
+            int total = RivalRoster.Count;
+
+            GameEvents.RaiseRivalIntro(curIndex, total, goon.DisplayName);
+        }
+
         return true;
     }
 
