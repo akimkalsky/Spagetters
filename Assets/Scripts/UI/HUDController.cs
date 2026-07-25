@@ -5,7 +5,7 @@ using UnityEngine;
 public class HUDController : MonoBehaviour
 {
     Canvas canvas;
-    TMP_Text countLabel, drawLabel, roundLabel, feintLabel, steadyLabel, promptLabel, nameLabel, paceLabel, paceCaption, drawHint;
+    TMP_Text countLabel, drawLabel, roundLabel, feintLabel, steadyLabel, promptLabel, nameLabel, paceLabel, paceCaption, drawHint, streakLabel;
     float drawFlash;
     Coroutine feintRoutine;
     int shownCount = int.MinValue;
@@ -30,6 +30,7 @@ public class HUDController : MonoBehaviour
         GameEvents.SteadyShown += OnSteady;
         GameEvents.Prompt += OnPrompt;
         GameEvents.Pace += OnPace;
+        GameEvents.StreakChanged += OnStreak;
     }
 
     void OnDisable()
@@ -43,6 +44,7 @@ public class HUDController : MonoBehaviour
         GameEvents.SteadyShown -= OnSteady;
         GameEvents.Prompt -= OnPrompt;
         GameEvents.Pace -= OnPace;
+        GameEvents.StreakChanged -= OnStreak;
         if (GameFlow.Instance != null)
         {
             GameFlow.Instance.StateChanged -= OnState;
@@ -92,6 +94,25 @@ public class HUDController : MonoBehaviour
         steadyLabel.gameObject.SetActive(false);
         promptLabel = UIFactory.Label(canvas.transform, "", 54, Amber, new Vector2(0, -330));
         promptLabel.gameObject.SetActive(false);
+
+        streakLabel = UIFactory.Label(canvas.transform, "", 44, Amber, Vector2.zero);
+        var srt = streakLabel.rectTransform;
+        srt.anchorMin = srt.anchorMax = srt.pivot = new Vector2(1f, 1f);
+        srt.anchoredPosition = new Vector2(-40, -40);
+        srt.sizeDelta = new Vector2(360, 60);
+        streakLabel.alignment = TextAlignmentOptions.Right;
+        streakLabel.gameObject.SetActive(false);
+    }
+
+    void OnStreak(int streak)
+    {
+        bool show = streak >= 2;
+        streakLabel.gameObject.SetActive(show);
+        if (show)
+        {
+            streakLabel.text = $"STREAK  x{streak}";
+            StartCoroutine(Punch(streakLabel.rectTransform));
+        }
     }
 
     void OnSteps(int steps) => SetCount(steps);

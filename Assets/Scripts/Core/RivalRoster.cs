@@ -93,4 +93,38 @@ public static class RivalRoster
         foreach (var r in All) { r.Defeated = false; PlayerPrefs.SetInt(Key(r.Index), 0); }
         Current = null;
     }
+
+    public static void ResetDefeated()
+    {
+        foreach (var r in All) { r.Defeated = false; PlayerPrefs.SetInt(Key(r.Index), 0); }
+    }
+
+    public static Rival TopUndefeated()
+    {
+        Rival best = null;
+        foreach (var r in All)
+        {
+            if (!r.Defeated && (best == null || r.Index > best.Index))
+            {
+                best = r;
+            }
+        }
+        return best;
+    }
+
+    public static int Remaining
+    {
+        get
+        {
+            int n = 0;
+            foreach (var r in All)
+            {
+                if (!r.Defeated)
+                {
+                    n++;
+                }
+            }
+            return n;
+        }
+    }
 }

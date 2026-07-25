@@ -78,6 +78,7 @@ public class RunClock : MonoBehaviour
         runOver = false;
         Wallet.Reset();
         Loadout.Reset();
+        RivalRoster.ResetDefeated();
         overCanvas.gameObject.SetActive(false);
         ShowHud(true);
     }

@@ -17,6 +17,8 @@ public static class GameEvents
     public static event Action<int> Pace;
     public static event Action<string> RivalFled;
     public static event Action Shot;
+    public static event Action<int> StreakChanged;
+    public static event Action WantedChanged;
 
     public static void RaiseStepsChanged(int steps) => StepsChanged?.Invoke(steps);
     public static void RaiseOutOfSteps() => OutOfSteps?.Invoke();
@@ -33,4 +35,6 @@ public static class GameEvents
     public static void RaisePace(int n) => Pace?.Invoke(n);
     public static void RaiseRivalFled(string name) => RivalFled?.Invoke(name);
     public static void RaiseShot() => Shot?.Invoke();
+    public static void RaiseStreakChanged(int streak) => StreakChanged?.Invoke(streak);
+    public static void RaiseWantedChanged() => WantedChanged?.Invoke();
 }
