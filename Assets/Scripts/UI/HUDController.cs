@@ -63,10 +63,24 @@ public class HUDController : MonoBehaviour
             promptLabel.gameObject.SetActive(false);
         }
 
+        // --- CHANGE 1: Display Name Fix ---
+        Goon active = GameFlow.Instance != null ? GameFlow.Instance.activeGoon : null;
         var r = RivalRoster.Current;
-        bool duel = s == GameState.Duel && r != null;
-        nameLabel.text = duel ? r.Name : "";
-        nameLabel.gameObject.SetActive(duel);
+
+        bool duel = s == GameState.Duel;
+        string displayName = "";
+
+        if (active != null)
+        {
+            displayName = active.DisplayName;
+        }
+        else if (r != null)
+        {
+            displayName = r.Name;
+        }
+
+        nameLabel.text = duel ? displayName : "";
+        nameLabel.gameObject.SetActive(duel && !string.IsNullOrEmpty(displayName));
     }
 
     void Build()
@@ -107,7 +121,18 @@ public class HUDController : MonoBehaviour
         countLabel.text = value.ToString();
     }
 
-    void OnRound(int cur, int total) => roundLabel.text = $"RIVAL {cur} / {total}";
+    // --- CHANGE 2: Round Label Fix ---
+    void OnRound(int cur, int total)
+    {
+        if (GameSettings.StoryMode || total <= 0)
+        {
+            roundLabel.text = "";
+        }
+        else
+        {
+            roundLabel.text = $"RIVAL {cur} / {total}";
+        }
+    }
 
     void OnPace(int n)
     {

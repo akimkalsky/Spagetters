@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class NpcSpawner : MonoBehaviour
 {
@@ -11,12 +12,29 @@ public class NpcSpawner : MonoBehaviour
     public int duelDistance = 3;
     public int seed = 0;
 
+    [Header("Story Mode")]
+    public Transform[] storySpawns;
+
+    public enum SpawnMode
+    {
+        Random,
+        Story
+    }
+
+
+    public SpawnMode spawnMode = SpawnMode.Random;
+
     void Start()
     {
-        if (npcPrefab == null)
+        Debug.Log("NpcSpawner StoryMode = " + GameSettings.StoryMode);
+
+        if (GameSettings.StoryMode)
         {
+            Debug.Log("Story mode detected.");
             return;
         }
+
+        Debug.Log("Random mode detected.");
 
         var rng = seed != 0 ? new System.Random(seed) : new System.Random();
         var placed = new List<Vector3>();
@@ -78,6 +96,8 @@ public class NpcSpawner : MonoBehaviour
         }
         return false;
     }
+
+
 
     static float GroundHeight(Vector3 pos, float fallback)
     {

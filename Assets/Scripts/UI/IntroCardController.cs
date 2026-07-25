@@ -38,12 +38,29 @@ public class IntroCardController : MonoBehaviour
 
     void OnIntro(int cur, int total, string name)
     {
-        title.text = string.IsNullOrEmpty(name) ? "RIVAL APPROACHES" : name.ToUpper();
-        sub.text = total > 0 ? $"RIVAL {cur} / {total}" : "";
         var r = RivalRoster.Current;
-        string line = r == null ? "" : Cowardice.Fleeing ? r.CowardLine : r.Taunt;
+
+        // 1. Title Name
+        string displayName = !string.IsNullOrEmpty(name) ? name : (r != null ? r.Name : "RIVAL APPROACHES");
+        title.text = displayName.ToUpper();
+
+        // 2. Subtitle Counter
+        sub.text = total > 0 ? $"RIVAL {cur} / {total}" : "";
+
+        // 3. Taunt Line (Checks active Goon's line first, falls back to RivalRoster)
+        string line = "";
+        if (GameFlow.Instance != null && GameFlow.Instance.activeGoon != null)
+        {
+            line = GameFlow.Instance.activeGoon.DisplayTaunt;
+        }
+        else if (r != null)
+        {
+            line = Cowardice.Fleeing ? r.CowardLine : r.Taunt;
+        }
+
         tauntText = string.IsNullOrEmpty(line) ? "" : $"\"{line}\"";
         taunt.text = "";
+
         if (playing != null)
         {
             StopCoroutine(playing);
