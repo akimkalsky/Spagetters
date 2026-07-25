@@ -13,13 +13,6 @@ public class NpcSpawner : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("Random NPCs: " + GameManager.Instance.randomNpcSpawns);
-        if (GameManager.Instance != null &&
-    !GameManager.Instance.randomNpcSpawns)
-        {
-            return;
-        }
-
         if (npcPrefab == null)
         {
             return;

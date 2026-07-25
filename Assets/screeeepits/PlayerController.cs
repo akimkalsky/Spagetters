@@ -208,7 +208,7 @@ public class PlayerController : MonoBehaviour
         goon.HideUI();
         if (GameFlow.Instance.BeginEncounter(goon))
         {
-            DuelIntroManager.Instance.PlayIntro(goon);
+            duel.BeginDuel();
         }
     }
 }
