@@ -167,7 +167,7 @@ public class GameFlow : MonoBehaviour
     public bool BeginEncounter(Goon goon)
     {
         var r = RivalRoster.Current;
-        if (Cowardice.Rolls(r))
+        if (!GameSettings.StoryMode && Cowardice.Rolls(r))
         {
             StartCoroutine(CowardFlee(goon, r));
             return false;
