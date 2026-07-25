@@ -111,18 +111,34 @@ public class MainMenuController : MonoBehaviour
 
     void BuildHowTo()
     {
-        var panel = UIFactory.FullScreenPanel(canvas.transform, new Color(0.09f, 0.06f, 0.05f, 1f));
+        var panel = UIFactory.FullScreenPanel(canvas.transform, new Color(0.06f, 0.04f, 0.03f, 1f));
         howTo = panel.gameObject;
-        UIFactory.Label(howTo.transform, "HOW TO PLAY", 88, UIFactory.Parchment, new Vector2(0, 340));
-        UIFactory.Label(howTo.transform,
-            "Walk with W and S, turn with A and D.\n" +
-            "Approach a rival and press E or click to call them out.\n" +
-            "Walk the paces as the count ticks down.\n" +
-            "On DRAW, fire faster than your rival - but never before, or you're buried.\n" +
-            "Take side jobs for cash and steps; spend cash at the store in the pause menu.\n" +
-            "Clear every rival before sundown.",
-            40, UIFactory.Parchment, new Vector2(0, 30)).textWrappingMode = TextWrappingModes.Normal;
-        UIFactory.MenuButton(howTo.transform, "CONTINUE", new Vector2(0, -320),
+
+        Box(howTo.transform, new Vector2(1380, 860), Vector2.zero, UIFactory.Rust);
+        Box(howTo.transform, new Vector2(1360, 840), Vector2.zero, new Color(0.12f, 0.08f, 0.06f, 1f));
+
+        UIFactory.Label(howTo.transform, "HOW TO PLAY", 92, UIFactory.Rust, new Vector2(0, 330));
+        var tag = UIFactory.Label(howTo.transform, "read it 'fore you go and get yourself killed", 32, UIFactory.Parchment, new Vector2(0, 262));
+        tag.fontStyle = FontStyles.Italic;
+        Box(howTo.transform, new Vector2(720, 3), new Vector2(0, 226), UIFactory.Rust);
+
+        const string key = "#F2BF59";
+        const string bad = "#C05A34";
+        var body = UIFactory.Label(howTo.transform,
+            $"<color={key}>W / S</color>  walk,   <color={key}>A / D</color>  turn.\n\n" +
+            $"Get close and hit <color={key}>E</color> (or click) to call a rival out.\n\n" +
+            $"Walk your paces as the count winds down.\n\n" +
+            $"On <color={key}>DRAW!</color> - out-draw him. Fire early and you're buried.\n\n" +
+            $"Odd jobs pay coin and daylight, spent at the <color={key}>store</color> (pause menu).\n\n" +
+            $"Put every rival in the dirt <color={bad}>before sundown</color>.",
+            32, UIFactory.Parchment, new Vector2(0, -50), TextAlignmentOptions.Left);
+        body.rectTransform.sizeDelta = new Vector2(1200, 480);
+        body.textWrappingMode = TextWrappingModes.Normal;
+        body.fontStyle = FontStyles.Normal;
+        body.characterSpacing = 0f;
+        body.lineSpacing = 8f;
+
+        UIFactory.MenuButton(howTo.transform, "CONTINUE", new Vector2(0, -370),
                              () => howTo.SetActive(false));
 
         bool firstTime = PlayerPrefs.GetInt("seen_howto", 0) == 0;
@@ -132,5 +148,16 @@ public class MainMenuController : MonoBehaviour
             PlayerPrefs.SetInt("seen_howto", 1);
             PlayerPrefs.Save();
         }
+    }
+
+    static Image Box(Transform parent, Vector2 size, Vector2 pos, Color color)
+    {
+        var img = new GameObject("Box").AddComponent<Image>();
+        img.transform.SetParent(parent, false);
+        img.color = color;
+        img.raycastTarget = false;
+        img.rectTransform.sizeDelta = size;
+        img.rectTransform.anchoredPosition = pos;
+        return img;
     }
 }

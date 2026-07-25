@@ -40,6 +40,10 @@ public class RunClock : MonoBehaviour
         GameEvents.DuelStarted += OnDuelStarted;
         GameEvents.DuelEnded += OnDuelEnded;
         GameEvents.OutOfSteps += OnOutOfSteps;
+        if (GameFlow.Instance != null)
+        {
+            GameFlow.Instance.StateChanged += OnState;
+        }
     }
 
     void OnDisable()
@@ -47,6 +51,16 @@ public class RunClock : MonoBehaviour
         GameEvents.DuelStarted -= OnDuelStarted;
         GameEvents.DuelEnded -= OnDuelEnded;
         GameEvents.OutOfSteps -= OnOutOfSteps;
+        if (GameFlow.Instance != null)
+        {
+            GameFlow.Instance.StateChanged -= OnState;
+        }
+    }
+
+    void OnState(GameState s)
+    {
+        bool show = running && s != GameState.MainMenu && s != GameState.Result && s != GameState.Boot;
+        ShowHud(show);
     }
 
     void OnOutOfSteps()
@@ -109,7 +123,8 @@ public class RunClock : MonoBehaviour
         {
             return;
         }
-        if (GameFlow.Instance != null && GameFlow.Instance.State == GameState.Paused)
+        var st = GameFlow.Instance != null ? GameFlow.Instance.State : GameState.Boot;
+        if (st != GameState.Explore && st != GameState.Duel && st != GameState.Minigame)
         {
             return;
         }

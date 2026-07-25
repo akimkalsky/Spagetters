@@ -5,6 +5,7 @@ public class GameAudio : MonoBehaviour
 {
     const string MusicMenu = "menu_theme";
     const string MusicField = "field_theme";
+    const string MusicMinigame = "minigame_theme";
     const string MusicPrelude = "duel_prelude_theme";
     const string MusicDuel = "duel_theme";
 
@@ -66,8 +67,10 @@ public class GameAudio : MonoBehaviour
                 a.PlayMusic(MusicMenu, 0.5f);
                 break;
             case GameState.Explore:
-            case GameState.Minigame:
                 a.PlayMusic(MusicField, 0.45f);
+                break;
+            case GameState.Minigame:
+                a.PlayMusic(MusicMinigame, 0.45f);
                 break;
             case GameState.Duel:
                 a.PlayMusic(MusicPrelude, 0.5f);

@@ -119,7 +119,12 @@ public class GameFlow : MonoBehaviour
         var listeners = FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
         if (listeners.Length > 1)
         {
-            int keep = Array.FindIndex(listeners, l => l.GetComponent<Camera>() != null);
+            var persistent = AudioManager.Instance != null ? AudioManager.Instance.GetComponent<AudioListener>() : null;
+            int keep = persistent != null ? Array.IndexOf(listeners, persistent) : -1;
+            if (keep < 0)
+            {
+                keep = Array.FindIndex(listeners, l => l.GetComponent<Camera>() != null);
+            }
             if (keep < 0)
             {
                 keep = 0;

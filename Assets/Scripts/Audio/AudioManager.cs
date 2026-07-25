@@ -25,7 +25,14 @@ public class AudioManager : MonoBehaviour
         }
         Instance = this;
 
-        if (FindFirstObjectByType<AudioListener>() == null)
+        foreach (var l in FindObjectsByType<AudioListener>(FindObjectsSortMode.None))
+        {
+            if (l.gameObject != gameObject)
+            {
+                Destroy(l);
+            }
+        }
+        if (GetComponent<AudioListener>() == null)
         {
             gameObject.AddComponent<AudioListener>();
         }
