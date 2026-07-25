@@ -142,27 +142,37 @@ public static class ProceduralSfx
 
     static AudioClip Gunshot()
     {
-        int n = (int)(SR * 0.5f);
+        int n = (int)(SR * 0.6f);
         var d = new float[n];
-        float lp = 0f, bodyPh = 0f;
+        float lp = 0f, bodyPh = 0f, subPh = 0f;
         for (int i = 0; i < n; i++)
         {
             float t = (float)i / n;
 
-            lp += 0.85f * (Noise() - lp);
-            float crack = lp * Mathf.Exp(-40f * t);
+            float click = i < 45 ? (1f - i / 45f) : 0f;
 
-            float spike = i < 70 ? Noise() * (1f - i / 70f) : 0f;
+            lp += 0.8f * (Noise() - lp);
+            float crack = lp * Mathf.Exp(-30f * t);
 
-            float bodyFreq = Mathf.Lerp(170f, 55f, Mathf.Min(1f, t * 5f));
+            float blast = Noise() * Mathf.Exp(-11f * t) * 0.6f;
+
+            float bodyFreq = Mathf.Lerp(220f, 45f, Mathf.Min(1f, t * 3.5f));
             bodyPh += bodyFreq / SR;
             if (bodyPh >= 1f)
             {
                 bodyPh -= 1f;
             }
-            float body = Mathf.Sin(bodyPh * 2f * Mathf.PI) * Mathf.Exp(-11f * t);
+            float body = Mathf.Sin(bodyPh * 2f * Mathf.PI) * Mathf.Exp(-6.5f * t);
 
-            d[i] = spike * 0.95f + crack * 1.0f + body * 0.75f;
+            subPh += 42f / SR;
+            if (subPh >= 1f)
+            {
+                subPh -= 1f;
+            }
+            float sub = Mathf.Sin(subPh * 2f * Mathf.PI) * Mathf.Exp(-5f * t) * 0.75f;
+
+            float x = (click * 1.0f + crack * 0.9f + blast * 0.5f + body * 1.1f + sub * 0.85f) * 1.7f;
+            d[i] = x / (1f + Mathf.Abs(x));
         }
         Normalize(d, 1.0f);
         return FromSamples("gunshot", d, false, 0.9f);

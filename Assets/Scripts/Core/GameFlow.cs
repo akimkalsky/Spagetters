@@ -49,6 +49,7 @@ public class GameFlow : MonoBehaviour
     GameState prePause = GameState.Explore;
     bool minigameFromWorld;
     JobStation pendingJob;
+    int winStreak;
     int minigameEarnedBefore;
     Scene worldScene;
     readonly List<GameObject> hiddenRoots = new();
@@ -92,6 +93,7 @@ public class GameFlow : MonoBehaviour
         Spawn<DuelToastController>("DuelToastUI");
         Spawn<RivalIndicator>("RivalIndicatorUI");
         Spawn<Minimap>("MinimapUI");
+        Spawn<WantedBoard>("WantedUI");
     }
 
     void OnEnable()
@@ -156,6 +158,7 @@ public class GameFlow : MonoBehaviour
     public void EnterWorld()
     {
         LastWasCoward = false;
+        winStreak = 0;
         StartCoroutine(TransitionTo(DuelScene, GameState.Explore, forceReload: true));
     }
 
@@ -482,24 +485,31 @@ public class GameFlow : MonoBehaviour
 
         if (won)
         {
+            winStreak++;
+            float mult = 1f + (winStreak - 1) * 0.3f;
             int delta = activeGoon != null ? activeGoon.rewardSteps : 8;
             gm?.AddSteps(delta);
             var r = RivalRoster.Current;
             if (r != null)
             {
-                Wallet.Add(r.Bounty);
+                Wallet.Add(Mathf.RoundToInt(r.Bounty * mult));
+                RivalRoster.MarkDefeated(r);
             }
             if (activeGoon != null)
             {
                 activeGoon.Defeat();
             }
             activeGoon = null;
+            GameEvents.RaiseStreakChanged(winStreak);
+            GameEvents.RaiseWantedChanged();
             GameEvents.RaiseDuelResolved(true, delta);
             SetState(GameState.Explore);
             return;
         }
 
         activeGoon = null;
+        winStreak = 0;
+        GameEvents.RaiseStreakChanged(0);
         if (duelLossIsFatal)
         {
             RunClock.Instance?.GameOver("YOU DIED", "gunned down in the dust");
@@ -514,4 +524,6 @@ public class GameFlow : MonoBehaviour
             SetState(GameState.Explore);
         }
     }
+
+    public int WinStreak => winStreak;
 }

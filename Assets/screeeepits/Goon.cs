@@ -35,6 +35,7 @@ public class Goon : MonoBehaviour
     public List<DialogueLine> customDialogue = new List<DialogueLine>();
 
     Vector3 fightIconBaseScale = Vector3.one;
+    NpcNameTag nameTag;
 
     private void Start()
     {
@@ -55,18 +56,35 @@ public class Goon : MonoBehaviour
 
             if (r != null)
             {
-                gameObject.AddComponent<NpcNameTag>().Init(r.Name);
+                nameTag = gameObject.AddComponent<NpcNameTag>();
+                nameTag.Init(r.Name);
             }
         }
         else if (!string.IsNullOrWhiteSpace(customName))
         {
-            gameObject.AddComponent<NpcNameTag>().Init(customName);
+            nameTag = gameObject.AddComponent<NpcNameTag>();
+            nameTag.Init(customName);
         }
 
         foreach (var col in GetComponentsInChildren<Collider>())
         {
             col.isTrigger = true;
         }
+
+        RefreshBoss();
+    }
+
+    void OnEnable() => GameEvents.WantedChanged += RefreshBoss;
+    void OnDisable() => GameEvents.WantedChanged -= RefreshBoss;
+
+    void RefreshBoss()
+    {
+        if (nameTag == null)
+        {
+            return;
+        }
+        var boss = RivalRoster.TopUndefeated();
+        nameTag.SetBoss(boss != null && boss.Index == rivalIndex);
     }
 
     public Rival GetRival()
