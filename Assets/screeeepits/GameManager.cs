@@ -7,6 +7,9 @@ public class GameManager : MonoBehaviour
 
     public int steps = 30;
 
+    [Header("Game Mode")]
+    public bool randomNpcSpawns;
+
     public TMP_Text stepText;
 
     private void Awake()

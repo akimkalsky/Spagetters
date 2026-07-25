@@ -12,6 +12,17 @@ public class Goon : MonoBehaviour
     public TMP_Text countdownText;
     public GameObject fightIcon;
 
+
+
+    [Header("Portrait")]
+    public Sprite portrait;
+
+    [Header("Dialogue")]
+    public string goonName = "Nelson";
+    public string[] introDialogue;
+
+
+
     Vector3 fightIconBaseScale = Vector3.one;
 
     private void Start()
