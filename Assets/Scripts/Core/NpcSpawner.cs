@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class NpcSpawner : MonoBehaviour
 {
@@ -20,17 +21,20 @@ public class NpcSpawner : MonoBehaviour
         Story
     }
 
+
     public SpawnMode spawnMode = SpawnMode.Random;
 
     void Start()
     {
+        Debug.Log("NpcSpawner StoryMode = " + GameSettings.StoryMode);
+
         if (GameSettings.StoryMode)
         {
-            // Story mode:
-            // Don't create random NPCs.
-            // Keep the ones already placed in the scene.
+            Debug.Log("Story mode detected.");
             return;
         }
+
+        Debug.Log("Random mode detected.");
 
         var rng = seed != 0 ? new System.Random(seed) : new System.Random();
         var placed = new List<Vector3>();
@@ -93,32 +97,6 @@ public class NpcSpawner : MonoBehaviour
         return false;
     }
 
-
-    void SpawnStory()
-    {
-        for (int i = 0; i < storySpawns.Length; i++)
-        {
-            if (storySpawns[i] == null)
-                continue;
-
-            var npc = Instantiate(
-                npcPrefab,
-                storySpawns[i].position,
-                storySpawns[i].rotation);
-
-            npc.name = $"StoryNpc {i + 1}";
-
-            var goon = npc.GetComponentInChildren<Goon>(true);
-
-            if (goon != null)
-            {
-                goon.duelDistance = duelDistance;
-
-                if (i < RivalRoster.Count)
-                    goon.rivalIndex = i;
-            }
-        }
-    }
 
 
     static float GroundHeight(Vector3 pos, float fallback)
