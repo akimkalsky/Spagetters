@@ -14,6 +14,8 @@ public class NpcSpawner : MonoBehaviour
 
     [Header("Story Mode")]
     public Transform[] storySpawns;
+    [Header("Appearance")]
+    public Sprite[] possibleSprites;
 
     public enum SpawnMode
     {
@@ -57,6 +59,13 @@ public class NpcSpawner : MonoBehaviour
             float yaw = (float)rng.NextDouble() * 360f;
             var npc = Instantiate(npcPrefab, pos, Quaternion.Euler(0f, yaw, 0f));
             npc.name = $"DuelNpc {placed.Count}";
+
+            var sr = npc.GetComponentInChildren<SpriteRenderer>();
+
+            if (sr != null && possibleSprites.Length > 0)
+            {
+                sr.sprite = possibleSprites[rng.Next(possibleSprites.Length)];
+            }
 
             var rends = npc.GetComponentsInChildren<Renderer>();
             if (rends.Length > 0)

@@ -19,9 +19,20 @@ public class DuelIntroUI : MonoBehaviour
 
     [Header("Typewriter Settings")]
     [Tooltip("Time in seconds between each character typed.")]
-    public float typingSpeed = 0.03f;
+    public float typingSpeed = 0.05f;
     [Tooltip("Delay in seconds after dialogue finishes before the duel starts.")]
     public float delayBeforeDuel = 0.1f;
+
+    [Header("Advance Controls")]
+    public Button nextButton;
+    public GameObject readyIndicator;
+
+    [Header("Speaker Labels")]
+    public TMP_Text playerName;
+    public TMP_Text goonName;
+
+    [Tooltip("Optional decorative frame shown behind the goon portrait.")]
+    public GameObject portraitFrame;
 
     private DuelController duel;
     private Goon currentGoon;
@@ -32,33 +43,72 @@ public class DuelIntroUI : MonoBehaviour
     private List<Goon.DialogueLine> activeLines;
 
     private Coroutine typingCoroutine;
+    private int lastAdvanceFrame = -1;
 
     void Awake()
     {
         Instance = this;
         if (holder != null) holder.SetActive(false);
+        if (nextButton != null)
+        {
+            nextButton.onClick.AddListener(Advance);
+        }
     }
 
     void Update()
     {
-        if (!isActive || isTransitioning) return;
-
-        bool clicked = (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) ||
-                       (Keyboard.current != null && (Keyboard.current.eKey.wasPressedThisFrame || Keyboard.current.spaceKey.wasPressedThisFrame));
-
-        if (clicked)
+        if (isActive && !isTransitioning)
         {
-            if (isTyping)
+            bool clicked = (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) ||
+                           (Keyboard.current != null && (Keyboard.current.eKey.wasPressedThisFrame || Keyboard.current.spaceKey.wasPressedThisFrame));
+
+            if (clicked)
             {
-                // If text is still typing, finish typing immediately on click
-                CompleteTypingImmediately();
-            }
-            else
-            {
-                // Otherwise move to the next line
-                Next();
+                Advance();
             }
         }
+
+        PulseReady();
+    }
+
+    public void Advance()
+    {
+        if (!isActive || isTransitioning)
+        {
+            return;
+        }
+        if (Time.frameCount == lastAdvanceFrame)
+        {
+            return;
+        }
+        lastAdvanceFrame = Time.frameCount;
+
+        if (isTyping)
+        {
+            CompleteTypingImmediately();
+        }
+        else
+        {
+            Next();
+        }
+    }
+
+    void SetReady(bool on)
+    {
+        if (readyIndicator != null && readyIndicator.activeSelf != on)
+        {
+            readyIndicator.SetActive(on);
+        }
+    }
+
+    void PulseReady()
+    {
+        if (readyIndicator == null || !readyIndicator.activeSelf)
+        {
+            return;
+        }
+        float s = 1f + 0.12f * Mathf.Sin(Time.unscaledTime * 6f);
+        readyIndicator.transform.localScale = new Vector3(s, s, 1f);
     }
 
     public void Show(Goon goon, DuelController duelController)
@@ -69,17 +119,18 @@ public class DuelIntroUI : MonoBehaviour
         isActive = true;
         dialogueIndex = 0;
 
+        bool hasPortrait = goon.portrait != null;
         if (goonPortrait != null)
         {
-            if (goon.portrait != null)
+            if (hasPortrait)
             {
                 goonPortrait.sprite = goon.portrait;
-                goonPortrait.gameObject.SetActive(true);
             }
-            else
-            {
-                goonPortrait.gameObject.SetActive(false);
-            }
+            goonPortrait.gameObject.SetActive(hasPortrait);
+        }
+        if (portraitFrame != null)
+        {
+            portraitFrame.SetActive(hasPortrait);
         }
 
         if (GameFlow.Instance != null)
@@ -95,6 +146,12 @@ public class DuelIntroUI : MonoBehaviour
         {
             activeLines = GetDefaultLines();
         }
+
+        if (playerName != null) playerName.text = "YOU";
+        if (goonName != null) goonName.text = goon.DisplayName;
+
+        SetReady(false);
+        if (nextButton != null) nextButton.gameObject.SetActive(true);
 
         if (holder != null) holder.SetActive(true);
 
@@ -143,15 +200,35 @@ public class DuelIntroUI : MonoBehaviour
     private IEnumerator TypeText(TMP_Text targetText, string fullText)
     {
         isTyping = true;
+        SetReady(false);
         targetText.text = "";
 
+        float baseDelay = Mathf.Max(typingSpeed, 0.05f);
+        int typed = 0;
         foreach (char letter in fullText.ToCharArray())
         {
             targetText.text += letter;
-            yield return new WaitForSeconds(typingSpeed);
+
+            if (letter != ' ' && typed % 2 == 0)
+            {
+                AudioManager.Instance?.PlaySfx("type", 0.35f);
+            }
+            typed++;
+
+            float delay = baseDelay;
+            if (letter == '.' || letter == '!' || letter == '?')
+            {
+                delay = baseDelay * 8f;
+            }
+            else if (letter == ',' || letter == ';' || letter == ':' || letter == '-')
+            {
+                delay = baseDelay * 4f;
+            }
+            yield return new WaitForSeconds(delay);
         }
 
         isTyping = false;
+        SetReady(true);
     }
 
     private void CompleteTypingImmediately()
@@ -172,6 +249,7 @@ public class DuelIntroUI : MonoBehaviour
         }
 
         isTyping = false;
+        SetReady(true);
     }
 
     private List<Goon.DialogueLine> GetDefaultLines()
@@ -189,6 +267,8 @@ public class DuelIntroUI : MonoBehaviour
         isTransitioning = true;
         isActive = false;
 
+        SetReady(false);
+        if (nextButton != null) nextButton.gameObject.SetActive(false);
         playerPanel.SetActive(false);
         goonPanel.SetActive(false);
 

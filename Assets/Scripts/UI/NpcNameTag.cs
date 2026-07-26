@@ -12,6 +12,7 @@ public class NpcNameTag : MonoBehaviour
     Transform tagTf;
     Camera cam;
     float topOffset;
+    string baseLabel = "";
 
     public void Init(string label)
     {
@@ -19,7 +20,18 @@ public class NpcNameTag : MonoBehaviour
         {
             Build();
         }
+        baseLabel = label;
         text.text = label;
+    }
+
+    public void SetBoss(bool boss)
+    {
+        if (text == null)
+        {
+            return;
+        }
+        text.text = boss ? "† " + baseLabel : baseLabel;
+        text.color = boss ? new Color(0.92f, 0.26f, 0.2f) : UIFactory.Parchment;
     }
 
     void Build()

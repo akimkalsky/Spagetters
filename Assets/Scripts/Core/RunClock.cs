@@ -12,6 +12,8 @@ public class RunClock : MonoBehaviour
     float daylight;
     bool running, runOver;
     int shownSecond = -1;
+    float cawTimer;
+    bool riserPlayed;
 
     public bool Running => running;
     public string Clock => $"{(int)(daylight / 60f)}:{(int)(daylight % 60f):00}";
@@ -38,6 +40,10 @@ public class RunClock : MonoBehaviour
         GameEvents.DuelStarted += OnDuelStarted;
         GameEvents.DuelEnded += OnDuelEnded;
         GameEvents.OutOfSteps += OnOutOfSteps;
+        if (GameFlow.Instance != null)
+        {
+            GameFlow.Instance.StateChanged += OnState;
+        }
     }
 
     void OnDisable()
@@ -45,6 +51,16 @@ public class RunClock : MonoBehaviour
         GameEvents.DuelStarted -= OnDuelStarted;
         GameEvents.DuelEnded -= OnDuelEnded;
         GameEvents.OutOfSteps -= OnOutOfSteps;
+        if (GameFlow.Instance != null)
+        {
+            GameFlow.Instance.StateChanged -= OnState;
+        }
+    }
+
+    void OnState(GameState s)
+    {
+        bool show = running && s != GameState.MainMenu && s != GameState.Result && s != GameState.Boot;
+        ShowHud(show);
     }
 
     void OnOutOfSteps()
@@ -74,12 +90,16 @@ public class RunClock : MonoBehaviour
     public void StartRun()
     {
         daylight = TotalDaylight;
-        running = true;
         runOver = false;
+        cawTimer = 0f;
+        riserPlayed = false;
         Wallet.Reset();
         Loadout.Reset();
+        RivalRoster.ResetDefeated();
         overCanvas.gameObject.SetActive(false);
-        ShowHud(true);
+
+        running = !GameSettings.StoryMode;
+        ShowHud(running);
     }
 
     public void AddDaylight(float seconds) => daylight += seconds;
@@ -103,7 +123,8 @@ public class RunClock : MonoBehaviour
         {
             return;
         }
-        if (GameFlow.Instance != null && GameFlow.Instance.State == GameState.Paused)
+        var st = GameFlow.Instance != null ? GameFlow.Instance.State : GameState.Boot;
+        if (st != GameState.Explore && st != GameState.Duel && st != GameState.Minigame)
         {
             return;
         }
@@ -124,11 +145,18 @@ public class RunClock : MonoBehaviour
         ShowHud(false);
         Time.timeScale = 0f;
         overCanvas.gameObject.SetActive(true);
+
+        int daylightLeft = won ? (int)daylight : 0;
+        bool record = Highscore.Report(won, RivalRoster.DefeatedCount, Wallet.TotalEarned, daylightLeft);
+
         overTitle.text = title ?? (won ? "FASTEST GUN IN THE WEST" : "SUNDOWN");
         overTitle.color = won ? UIFactory.Parchment : UIFactory.Rust;
-        overSub.text = sub ?? (won ? "you cleared the wall before dark" : "the sun set on your ambitions");
+        overSub.text = record
+            ? "a new personal best!"
+            : (sub ?? (won ? "you cleared the wall before dark" : "the sun set on your ambitions"));
         overStats.text = Summary(won);
         AudioManager.Instance?.PlaySfx(won ? "win" : "lose");
+        AudioManager.Instance?.PlayMusic(won ? "victory_theme" : "gameover_theme", 0.5f);
     }
 
     string Summary(bool won)
@@ -136,16 +164,18 @@ public class RunClock : MonoBehaviour
         var lines = new System.Text.StringBuilder();
         lines.AppendLine($"RIVALS DOWN      {RivalRoster.DefeatedCount} / {RivalRoster.Count}");
         lines.AppendLine($"BOUNTY EARNED    ${Wallet.TotalEarned}");
-        if (won)
+        lines.AppendLine(won ? $"DAYLIGHT LEFT    {Clock}" : "caught by the dark");
+
+        string best = $"BEST   {Highscore.BestRivals} rivals,  ${Highscore.BestBounty}";
+        if (Highscore.BestDaylightLeft > 0)
         {
-            lines.Append($"DAYLIGHT LEFT    {Clock}");
+            best += $",  {FmtClock(Highscore.BestDaylightLeft)} left";
         }
-        else
-        {
-            lines.Append("caught by the dark");
-        }
+        lines.Append(best);
         return lines.ToString();
     }
+
+    static string FmtClock(int sec) => $"{sec / 60}:{sec % 60:00}";
 
     void ShowHud(bool on) => hudCanvas.gameObject.SetActive(on);
 
@@ -162,7 +192,24 @@ public class RunClock : MonoBehaviour
             shownSecond = sec;
             timeText.text = $"SUNDOWN  {sec / 60}:{sec % 60:00}";
         }
-        Vultures(NightProgress);
+
+        float night = NightProgress;
+        if (night > 0.4f)
+        {
+            cawTimer -= Time.unscaledDeltaTime;
+            if (cawTimer <= 0f)
+            {
+                cawTimer = Random.Range(7f, 12f);
+                AudioManager.Instance?.PlaySfx("caw", 0.5f);
+            }
+        }
+        if (!riserPlayed && night > 0.7f)
+        {
+            riserPlayed = true;
+            AudioManager.Instance?.PlaySfx("riser", 0.6f);
+        }
+
+        Vultures(night);
     }
 
     void Vultures(float night)

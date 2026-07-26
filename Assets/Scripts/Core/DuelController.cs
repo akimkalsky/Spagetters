@@ -237,6 +237,7 @@ public class DuelController : MonoBehaviour
     IEnumerator FalseStart()
     {
         Current = Phase.Resolve;
+        GameEvents.RaiseFalseStart();
         yield return Finish(false, -1f, rivalWins: true);
     }
 

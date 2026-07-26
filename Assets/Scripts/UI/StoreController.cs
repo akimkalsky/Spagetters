@@ -40,7 +40,7 @@ public class StoreController : MonoBehaviour
 
     void OnState(GameState s)
     {
-        if (s != GameState.MainMenu)
+        if (s != GameState.MainMenu && s != GameState.Paused)
         {
             canvas.gameObject.SetActive(false);
         }
@@ -51,7 +51,7 @@ public class StoreController : MonoBehaviour
 
     void Build()
     {
-        canvas = UIFactory.CreateOverlayCanvas("StoreCanvas", 108, transform);
+        canvas = UIFactory.CreateOverlayCanvas("StoreCanvas", 250, transform);
         UIFactory.FullScreenPanel(canvas.transform, new Color(0.09f, 0.06f, 0.05f, 1f));
         UIFactory.Label(canvas.transform, "GENERAL STORE", 88, UIFactory.Parchment, new Vector2(0, 380));
         moneyLabel = UIFactory.Label(canvas.transform, "$0", 60, new Color(0.9f, 0.75f, 0.2f), new Vector2(0, 290));

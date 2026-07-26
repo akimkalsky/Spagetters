@@ -83,10 +83,12 @@ public class DuelToastController : MonoBehaviour
         float margin = won && DuelController.Instance != null ? DuelController.Instance.LastMargin : -1f;
         float frac = DuelController.Instance != null ? DuelController.Instance.LastMarginFraction : 0f;
 
+        int streak = GameFlow.Instance != null ? GameFlow.Instance.WinStreak : 0;
         var parts = new System.Collections.Generic.List<string>();
         if (won && r != null) parts.Add($"+${r.Bounty}");
         if (reaction >= 0f) parts.Add($"{reaction:0.000}s");
         if (margin >= 0f) parts.Add($"won by {margin:0.000}s");
+        if (won && streak >= 2) parts.Add($"STREAK x{streak}");
         stats.text = string.Join("   ", parts);
 
         bool showBar = margin >= 0f;

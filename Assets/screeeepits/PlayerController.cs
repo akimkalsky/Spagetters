@@ -198,12 +198,17 @@ public class PlayerController : MonoBehaviour
             RivalRoster.Select(rival);
         }
 
+        var boss = RivalRoster.TopUndefeated();
+        bool isBoss = boss != null && rival != null && boss.Index == rival.Index;
+
         var duel = DuelController.EnsureInstance();
         duel.playerActor = transform;
         duel.rivalActor = goon.transform;
         duel.paceStep = 0.3f;
         duel.playerAnim = anim;
         duel.rivalAnim = goon.GetComponentInChildren<SpriteAnimation>();
+        duel.feintChance = isBoss ? 0.85f : 0.5f;
+        duel.timeout = isBoss ? 1.0f : 1.2f;
 
         goon.HideUI();
 
