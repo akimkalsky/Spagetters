@@ -50,14 +50,14 @@ public class MainMenuController : MonoBehaviour
 
         UIFactory.Label(canvas.transform, "SPAGETTERS", 132, UIFactory.Parchment, new Vector2(0, 320));
 
-        UIFactory.MenuButton(canvas.transform, "VENTURE OUT", new Vector2(0, 130),
+        UIFactory.MenuButton(canvas.transform, "BOUNT BONANZA", new Vector2(0, 30),
     () =>
     {
         GameSettings.StoryMode = false;
 
         RivalSelectController.Instance.Open();
     });
-        UIFactory.MenuButton(canvas.transform, "STORY MODE", new Vector2(0, 30),
+        UIFactory.MenuButton(canvas.transform, "STORY MODE", new Vector2(0, 130),
     () =>
     {
         GameSettings.StoryMode = true;

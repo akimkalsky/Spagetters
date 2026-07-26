@@ -88,7 +88,7 @@ public class HUDController : MonoBehaviour
     void Build()
     {
         canvas = UIFactory.CreateOverlayCanvas("HUDCanvas", 50, transform);
-        countLabel = UIFactory.Label(canvas.transform, "10", 160, UIFactory.Parchment, new Vector2(0, 380));
+        countLabel = UIFactory.Label(canvas.transform, "10", 160, UIFactory.Parchment, new Vector2(0, 460));
         roundLabel = UIFactory.Label(canvas.transform, "", 46, UIFactory.Rust, new Vector2(0, 480));
         nameLabel = UIFactory.Label(canvas.transform, "", 56, UIFactory.Parchment, new Vector2(0, 300));
 
