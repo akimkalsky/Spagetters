@@ -290,9 +290,9 @@ public class RunClock : MonoBehaviour
     void NewRun()
     {
         Time.timeScale = 1f;
+        overCanvas.gameObject.SetActive(false);
         RivalRoster.ResetAll();
-        StartRun();
-        GameFlow.Instance.ToMainMenu();
+        GameFlow.Instance.EnterWorld();
     }
 
     void ToMenu()

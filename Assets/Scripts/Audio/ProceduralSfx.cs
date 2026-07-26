@@ -151,44 +151,78 @@ public static class ProceduralSfx
 
     static AudioClip Gunshot()
     {
-        int n = (int)(SR * 0.85f);
+        int n = (int)(SR * 1.0f);
         var d = new float[n];
         float lp = 0f, prevNoise = 0f, bodyPh = 0f, subPh = 0f;
+        float ring1 = 0f, ring2 = 0f, ring3 = 0f;
         for (int i = 0; i < n; i++)
         {
             float t = (float)i / n;
             float ms = i * 1000f / SR;
 
             float nz = Noise();
-            float crack = (nz - prevNoise) * Mathf.Exp(-ms / 3.5f);
+            float crack = (nz - prevNoise) * Mathf.Exp(-ms / 3f);
             prevNoise = nz;
 
             lp += 0.55f * (nz - lp);
-            float blast = lp * Mathf.Exp(-ms / 22f);
+            float blast = lp * Mathf.Exp(-ms / 16f);
 
-            float bodyFreq = Mathf.Lerp(260f, 48f, Mathf.Min(1f, t * 5f));
-            bodyPh += bodyFreq / SR;
-            if (bodyPh >= 1f)
-            {
-                bodyPh -= 1f;
-            }
-            float body = Mathf.Sin(bodyPh * 2f * Mathf.PI) * Mathf.Exp(-ms / 45f);
+            bodyPh = Advance(bodyPh, Mathf.Lerp(240f, 52f, Mathf.Min(1f, t * 6f)));
+            float body = Mathf.Sin(bodyPh * 2f * Mathf.PI) * Mathf.Exp(-ms / 50f);
 
-            subPh += 38f / SR;
-            if (subPh >= 1f)
-            {
-                subPh -= 1f;
-            }
-            float sub = Mathf.Sin(subPh * 2f * Mathf.PI) * Mathf.Exp(-ms / 90f);
+            subPh = Advance(subPh, Mathf.Lerp(58f, 34f, Mathf.Min(1f, t * 8f)));
+            float sub = Mathf.Sin(subPh * 2f * Mathf.PI) * Mathf.Exp(-ms / 110f);
 
-            d[i] = crack * 2.6f + blast * 1.5f + body * 1.2f + sub * 0.9f;
+            ring1 = Advance(ring1, 1900f);
+            ring2 = Advance(ring2, 2840f);
+            ring3 = Advance(ring3, 4130f);
+            float ping = (Mathf.Sin(ring1 * 2f * Mathf.PI)
+                          + Mathf.Sin(ring2 * 2f * Mathf.PI) * 0.6f
+                          + Mathf.Sin(ring3 * 2f * Mathf.PI) * 0.35f) * Mathf.Exp(-ms / 55f);
+
+            d[i] = crack * 2.2f + blast * 1.1f + body * 0.95f + sub * 1.05f + ping * 0.55f;
         }
 
-        SlapBack(d, 0.115f, 0.34f);
-        SlapBack(d, 0.255f, 0.17f);
-        Saturate(d, 1.6f);
+        Zing(d, 0.045f, 0.20f, 2850f, 820f, 0.62f, 0.75f);
+        Zing(d, 0.215f, 0.24f, 2050f, 600f, 0.34f, 0.85f);
+        Zing(d, 0.430f, 0.26f, 1500f, 470f, 0.17f, 0.95f);
+
+        SlapBack(d, 0.115f, 0.30f);
+        SlapBack(d, 0.255f, 0.15f);
+        Saturate(d, 1.35f);
+        FadeTail(d, 0.15f);
         Normalize(d, 1.0f);
-        return FromSamples("gunshot", d, false, 0.95f);
+        return FromSamples("gunshot", d, false, 0.98f);
+    }
+
+    static void Zing(float[] d, float startSeconds, float durSeconds, float fromHz, float toHz, float gain, float bass)
+    {
+        int start = (int)(SR * startSeconds);
+        int len = (int)(SR * durSeconds);
+        if (start >= d.Length || len <= 0)
+        {
+            return;
+        }
+        float ph = 0f, low = 0f, vib = 0f;
+        for (int i = 0; i < len && start + i < d.Length; i++)
+        {
+            float u = (float)i / len;
+            float f = Mathf.Lerp(fromHz, toHz, u * u);
+            vib = Advance(vib, 38f);
+            float wobble = 1f + 0.012f * Mathf.Sin(vib * 2f * Mathf.PI);
+            ph = Advance(ph, f * wobble);
+            low = Advance(low, f * 0.25f * wobble);
+            float tone = Mathf.Sin(ph * 2f * Mathf.PI) + Osc(Wave.Triangle, ph) * 0.18f;
+            float under = Mathf.Sin(low * 2f * Mathf.PI) * bass;
+            float env = Mathf.Min(1f, i / 90f) * Mathf.Exp(-3.2f * u);
+            d[start + i] += (tone + under) * env * gain;
+        }
+    }
+
+    static float Advance(float phase, float hz)
+    {
+        phase += hz / SR;
+        return phase >= 1f ? phase - 1f : phase;
     }
 
     static AudioClip Death()
