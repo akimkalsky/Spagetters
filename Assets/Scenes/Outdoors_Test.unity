@@ -5100,7 +5100,7 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: 64bf03b6c7c94974eb9bc5f5e61eb768, type: 3}
   customDialogue:
   - isPlayer: 0
-    text: You are out of luck Cooldown Kid!!
+    text: You are out of luck, Countdown Kid!!
   - isPlayer: 1
     text: "Luck? \nYou're a damn fool."
   - isPlayer: 0
@@ -5979,15 +5979,15 @@ MonoBehaviour:
   fightIcon: {fileID: 869415401}
   useRivalRoster: 0
   customName: Splitsecond Sam
-  customTaunt: "It\u2019s time to walk the walk"
+  customTaunt: "It\u2019s time to walk the walk."
   portrait: {fileID: 21300000, guid: 1b14cfe1f6f5e0a4c99c004fd30cf054, type: 3}
   customDialogue:
   - isPlayer: 0
     text: Whoa there, partner! You ain't goin' any farther.
   - isPlayer: 1
-    text: ...another Count clown on my way?
+    text: ...another Count clown in my way?
   - isPlayer: 0
-    text: Mind your manners Countdown Kid, the Count says you're all washed up.
+    text: Mind your manners, Countdown Kid. The Count says you're all washed up.
 --- !u!136 &715342636
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -6128,25 +6128,23 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: ff3468a2a5589454b8e01d9f268f8bc4, type: 3}
   customDialogue:
   - isPlayer: 0
-    text: Are you aproaching me to pet me?
+    text: Are you approaching me to pet me?
   - isPlayer: 1
-    text: "this voice? Wild Dog Wayne? \nIs that you?"
+    text: "This voice? Wild Dog Wayne? \nIs that you?"
   - isPlayer: 0
     text: You are ruining my disguise, compadre.
   - isPlayer: 1
     text: What are you into this time?
   - isPlayer: 0
-    text: 'Chasing Nelson...and cannot break my disguise...
-
-'
+    text: Chasing Nelson... and I cannot break my disguise...
   - isPlayer: 1
     text: ...
   - isPlayer: 0
-    text: If you are after the Count...rumor says he is behind the church.
+    text: If you are after the Count... rumor says he is behind the church.
   - isPlayer: 1
-    text: thanks Wild Dog.
+    text: Thanks, Wild Dog.
   - isPlayer: 0
-    text: Now Prepare to DIE (wink)
+    text: Now prepare to DIE. (wink)
   - isPlayer: 1
     text: ...
 --- !u!136 &752024104
@@ -6289,11 +6287,9 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: 998aca56ed2dbf24db1f07148333735c, type: 3}
   customDialogue:
   - isPlayer: 1
-    text: tsc... Late Louie?
+    text: Tsc... Late Louie?
   - isPlayer: 0
-    text: '...ah...wait
-
-      WAIT....'
+    text: "...ah... wait\nWAIT..."
   - isPlayer: 1
     text: ...no way...
   - isPlayer: 0
@@ -6309,11 +6305,11 @@ MonoBehaviour:
   - isPlayer: 1
     text: ...
   - isPlayer: 0
-    text: "Rea....\nno WAIT... \nwhere is my gun?"
+    text: "Rea...\nno WAIT...\nwhere is my gun?"
   - isPlayer: 0
     text: ...
   - isPlayer: 0
-    text: ... I am ready...
+    text: ...I am ready...
 --- !u!136 &755841097
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -6980,19 +6976,17 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: f4bf0b11d77714c4a9ef86cbd0e7a9af, type: 3}
   customDialogue:
   - isPlayer: 1
-    text: a cat?
+    text: A cat?
   - isPlayer: 0
-    text: pfff... where?
+    text: Pfff... where?
   - isPlayer: 1
-    text: 'you... '
+    text: You...
   - isPlayer: 0
-    text: me ? what?
+    text: Me? What?
   - isPlayer: 1
-    text: You are a cat... workin for the Count?
+    text: You are a cat... workin' for the Count?
   - isPlayer: 0
-    text: 'No...no no no... me not a cat, MEOWN
-
-      Prepare to die!'
+    text: "No... no no no... me not a cat, MEOWN!\nPrepare to die!"
 --- !u!136 &830845327
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -8250,13 +8244,13 @@ MonoBehaviour:
   - isPlayer: 1
     text: HUH?
   - isPlayer: 0
-    text: TSC...no mercy this time.
+    text: TSC... no mercy this time.
   - isPlayer: 1
-    text: 'you... '
+    text: You...
   - isPlayer: 0
-    text: "me ? what?\nthe Name is Nelson D\xE9j\xE0 vu."
+    text: "Me? What?\nThe name is Nelson D\xE9j\xE0 Vu."
   - isPlayer: 1
-    text: You face... is so familiar.
+    text: Your face... is so familiar.
   - isPlayer: 0
     text: Exactly.
 --- !u!136 &962573594
@@ -8511,26 +8505,17 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: 267789886de87f945a52e17a5b203c0e, type: 3}
   customDialogue:
   - isPlayer: 0
-    text: 'I was waiting for you Countdown Kid...
-
-      You and I... we are not
-      that different...
-
-      Two callous killers.'
+    text: "I was waiting for you, Countdown Kid...\nYou and I... we are not that different...\nTwo
+      callous killers."
   - isPlayer: 1
     text: ...
   - isPlayer: 0
-    text: 'You see... I own this county...I own this town aand soon enough...
-
-      this
-      whole country will be in my hands.'
+    text: "You see... I own this county... I own this town, and soon enough...\nthis
+      whole country will be in my hands."
   - isPlayer: 0
     text: If you hand over your gun, I can make you my partner.
   - isPlayer: 1
-    text: '...
-
-      You''re countin'' counties. I''m countin'' bullets... and you''re
-      next'
+    text: "...\nYou're countin' counties. I'm countin' bullets... and you're next."
 --- !u!136 &1027464556
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -9133,7 +9118,7 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: 9ed979769f1be8b4db8480a00f14c121, type: 3}
   customDialogue:
   - isPlayer: 0
-    text: ...just draw kid...
+    text: ...just draw, kid...
 --- !u!136 &1128415588
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -9858,15 +9843,15 @@ MonoBehaviour:
   - isPlayer: 0
     text: Well, partner... the Count warned us about you...
   - isPlayer: 1
-    text: Not your partner, I have no time for you
+    text: I'm not your partner. I have no time for you.
   - isPlayer: 0
-    text: "...no time? Wrong, we are precisely on time, \nDo you even know how to
-      count Countdown Kid?"
+    text: "...no time? Wrong, we are precisely on time.\nDo you even know how to
+      count, Countdown Kid?"
   - isPlayer: 1
     text: ...
   - isPlayer: 0
     text: You ain't never gonna reach the Count. This town's crawling with his loyal
-      men... and the Count don't get found
+      men... and the Count don't get found.
 --- !u!1001 &1273267484
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10276,23 +10261,15 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: 267789886de87f945a52e17a5b203c0e, type: 3}
   customDialogue:
   - isPlayer: 0
-    text: 'CountDown Kid... the legend...
-
-      You are close...
-
-      But this
-      is as far as you get'
+    text: "Countdown Kid... the legend...\nYou are close...\nBut this is as far as
+      you get."
   - isPlayer: 1
-    text: 'Tempo Tim, this is low... even to
-
-      a piece of crap like you.'
+    text: "Tempo Tim, this is low... even for\na piece of crap like you."
   - isPlayer: 0
-    text: 'So, noble, you are scum just like us...
-
-      Not late for you to join
-      us....'
+    text: "So noble. You are scum just like us...\nIt's not too late for you to join
+      us..."
   - isPlayer: 1
-    text: Soon enough, you'll be even lower... under the ground
+    text: Soon enough, you'll be even lower... under the ground.
 --- !u!136 &1342551070
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -10433,16 +10410,12 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: a08ae34bc170a2b4ebe632f05aa95728, type: 3}
   customDialogue:
   - isPlayer: 0
-    text: '(ywaning) darn it... I was taking a nap...
-
-      RUINED!'
+    text: "(yawning) Darn it... I was taking a nap...\nRUINED!"
   - isPlayer: 1
-    text: Easy partner...
+    text: Easy, partner...
   - isPlayer: 0
-    text: 'Here is the deal Buckaroo.
-
-      I was killing sometime, now I fell like
-      killing you!!'
+    text: "Here is the deal, buckaroo.\nI was killing some time, now I feel like
+      killing you!!"
 --- !u!136 &1345338432
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -11569,26 +11542,18 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: d3ab0553082b558499a81172d67c0f30, type: 3}
   customDialogue:
   - isPlayer: 0
-    text: 'So tired son.... so tired
-
-      They call Sunburn Boy, I am 80 years
-      old son.
-
-      Count me hired to put you down.'
+    text: "So tired, son... so tired.\nThey call me Sunburn Boy, I am 80 years old,
+      son.\nThe Count hired me to put you down."
   - isPlayer: 1
     text: Sir, step back.
   - isPlayer: 0
-    text: '(cough) You know the rules...
-
-      a contract is a contract.'
+    text: "(cough) You know the rules...\nA contract is a contract."
   - isPlayer: 1
-    text: your choice old man...
+    text: Your choice, old man...
   - isPlayer: 0
-    text: "...Is it?\nThat old varmint is hiding behind the church... \n"
+    text: "...Is it?\nThat old varmint is hiding behind the church..."
   - isPlayer: 1
-    text: '...
-
-'
+    text: ...
   - isPlayer: 0
     text: Soon I'll be one with the sun once again.
 --- !u!136 &1621140340
@@ -12049,26 +12014,20 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: b3e196df416bd0c47bc5722bee998a12, type: 3}
   customDialogue:
   - isPlayer: 0
-    text: 'The famous Countdown Kid!!
-
-      I C A N T BELIEEEVEEEEEEE!!'
+    text: "The famous Countdown Kid!!\nI C A N ' T BELIEEEVEEEEEEE!!"
   - isPlayer: 1
-    text: 'Much obliged, ma''am...
-
-      But I won''t fall for that.'
+    text: "Much obliged, ma'am...\nBut I won't fall for that."
   - isPlayer: 0
-    text: 'well look the size of his pistol.
-
-      look at those eyes...'
+    text: "Well, look at the size of his pistol.\nLook at those eyes..."
   - isPlayer: 1
     text: ...
   - isPlayer: 0
-    text: they call me One Minute Maria, I can do any job in one minute, A N Y J
-      O B
+    text: They call me One Minute Maria. I can do any job in one minute. A N Y J
+      O B.
   - isPlayer: 1
-    text: Cut it out, lady. We both know you won't last  10 seconds.
+    text: Cut it out, lady. We both know you won't last 10 seconds.
   - isPlayer: 0
-    text: ...Wait a minute!! I'll be lasitng more than ten seconds..in a minute.
+    text: ...Wait a minute!! I'll be lasting more than ten seconds... in a minute.
 --- !u!136 &1662963048
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -16181,11 +16140,9 @@ MonoBehaviour:
   - isPlayer: 0
     text: heheheheh
   - isPlayer: 1
-    text: ....
+    text: ...
   - isPlayer: 0
-    text: 'uhuha
-
-      HEHEHEEHE'
+    text: "uhuha\nHEHEHEEHE"
   - isPlayer: 1
     text: Quickfire Quinn?
   - isPlayer: 0
