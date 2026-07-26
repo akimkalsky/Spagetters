@@ -89,6 +89,10 @@ public class Goon : MonoBehaviour
 
     public Rival GetRival()
     {
+        if (!useRivalRoster)
+        {
+            return null;
+        }
         var all = RivalRoster.All;
         if (all == null || all.Count == 0)
         {

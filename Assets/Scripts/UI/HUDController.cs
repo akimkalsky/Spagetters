@@ -64,6 +64,10 @@ public class HUDController : MonoBehaviour
         {
             promptLabel.gameObject.SetActive(false);
         }
+        if (s == GameState.Duel)
+        {
+            RestoreDuelPrompts();
+        }
 
         // --- CHANGE 1: Display Name Fix ---
         Goon active = GameFlow.Instance != null ? GameFlow.Instance.activeGoon : null;
@@ -83,6 +87,32 @@ public class HUDController : MonoBehaviour
 
         nameLabel.text = duel ? displayName : "";
         nameLabel.gameObject.SetActive(duel && !GameSettings.StoryMode && !string.IsNullOrEmpty(displayName));
+    }
+
+    void RestoreDuelPrompts()
+    {
+        var duel = DuelController.Instance;
+        if (duel == null)
+        {
+            return;
+        }
+        switch (duel.Current)
+        {
+            case DuelController.Phase.Approach:
+                ShowPace(true);
+                break;
+            case DuelController.Phase.Standoff:
+            case DuelController.Phase.Draw:
+                steadyLabel.gameObject.SetActive(true);
+                break;
+            default:
+                if (duel.DrawWindowOpen)
+                {
+                    drawLabel.gameObject.SetActive(true);
+                    drawHint.gameObject.SetActive(true);
+                }
+                break;
+        }
     }
 
     void Build()

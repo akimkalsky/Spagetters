@@ -45,6 +45,7 @@ public class DuelController : MonoBehaviour
     public float LastMargin { get; private set; } = -1f;
     public float LastMarginFraction { get; private set; }
     public bool LastWon { get; private set; }
+    public bool DrawWindowOpen { get; private set; }
 
     public bool OwnsCountdown => Current == Phase.Approach || Current == Phase.Standoff || Current == Phase.Draw;
 
@@ -53,8 +54,8 @@ public class DuelController : MonoBehaviour
 
     Coroutine run;
     Coroutine timeFx;
-    float cueTime = -1f;
     bool fireLatched;
+    int resumeFrame = -1;
     Vector3 playerHome, rivalHome, paceAxis = Vector3.right;
     Camera cam;
     float baseFov = 60f;
@@ -116,8 +117,32 @@ public class DuelController : MonoBehaviour
         return false;
     }
 
+    bool Paused => GameFlow.Instance != null && GameFlow.Instance.State == GameState.Paused;
+
+    float Delta => Paused ? 0f : Time.unscaledDeltaTime;
+
+    void SetTimeScale(float value)
+    {
+        if (!Paused)
+        {
+            Time.timeScale = value;
+        }
+    }
+
     bool ConsumeFire()
     {
+        if (Paused)
+        {
+            fireLatched = false;
+            resumeFrame = Time.frameCount + 1;
+            return false;
+        }
+        // Don't let the click that dismissed the pause menu count as a draw.
+        if (Time.frameCount <= resumeFrame)
+        {
+            fireLatched = false;
+            return false;
+        }
         if (fireLatched || FirePressedThisFrame())
         {
             fireLatched = false;
@@ -140,7 +165,7 @@ public class DuelController : MonoBehaviour
             float t = 0f;
             while (t < paceInterval)
             {
-                t += Time.unscaledDeltaTime;
+                t += Delta;
                 yield return null;
             }
         }
@@ -153,7 +178,7 @@ public class DuelController : MonoBehaviour
         float hold = 0f;
         while (hold < standoffHold)
         {
-            hold += Time.unscaledDeltaTime;
+            hold += Delta;
             if (standoffCam != null)
             {
                 standoffCam.fieldOfView = Mathf.Lerp(baseFov, baseFov - standoffZoom, hold / standoffHold);
@@ -180,7 +205,7 @@ public class DuelController : MonoBehaviour
         bool feinted = false;
         while (waited < cueDelay)
         {
-            waited += Time.unscaledDeltaTime;
+            waited += Delta;
             if (!feinted && feintAt > 0f && waited >= feintAt)
             {
                 feinted = true;
@@ -194,7 +219,7 @@ public class DuelController : MonoBehaviour
             yield return null;
         }
 
-        cueTime = Time.unscaledTime;
+        DrawWindowOpen = true;
         fireLatched = false;
         GameEvents.RaiseDrawWindowOpened();
         if (bulletTime)
@@ -217,7 +242,7 @@ public class DuelController : MonoBehaviour
                 pressed = true;
                 break;
             }
-            elapsed += Time.unscaledDeltaTime;
+            elapsed += Delta;
             yield return null;
         }
 
@@ -227,7 +252,7 @@ public class DuelController : MonoBehaviour
             yield break;
         }
 
-        float playerReaction = ForcePerfectDraw ? 0f : Time.unscaledTime - cueTime;
+        float playerReaction = ForcePerfectDraw ? 0f : elapsed;
         bool won = ResolveWin(playerReaction, aiReaction, tieGoesToPlayer);
         LastMargin = aiReaction - playerReaction;
         LastMarginFraction = aiReaction > 0f ? Mathf.Clamp01(LastMargin / aiReaction) : 0f;
@@ -244,6 +269,7 @@ public class DuelController : MonoBehaviour
     IEnumerator Finish(bool won, float reaction, bool rivalWins)
     {
         Current = Phase.Done;
+        DrawWindowOpen = false;
         LastWon = won;
         LastPlayerReaction = reaction;
         GameEvents.RaiseShot();
@@ -290,7 +316,7 @@ public class DuelController : MonoBehaviour
         {
             yield return HitStop(hitStopSeconds);
         }
-        Time.timeScale = 1f;
+        SetTimeScale(1f);
 
         Camera c = Cam();
         if (c != null && !Accessibility.ReduceFlashing)
@@ -330,14 +356,14 @@ public class DuelController : MonoBehaviour
             yield break;
         }
 
-        Time.timeScale = 0.32f;
+        SetTimeScale(0.32f);
         var blood = new Color(0.42f, 0f, 0f);
 
         float up = 1.3f;
         float t = 0f;
         while (t < up)
         {
-            t += Time.unscaledDeltaTime;
+            t += Delta;
             float a = Mathf.SmoothStep(0f, 0.93f, Mathf.Pow(t / up, 0.7f));
             img.color = new Color(blood.r, blood.g, blood.b, a);
             yield return null;
@@ -349,12 +375,12 @@ public class DuelController : MonoBehaviour
         t = 0f;
         while (t < down)
         {
-            t += Time.unscaledDeltaTime;
+            t += Delta;
             img.color = new Color(blood.r, blood.g, blood.b, Mathf.Lerp(0.93f, 0f, t / down));
             yield return null;
         }
         img.color = new Color(0f, 0f, 0f, 0f);
-        Time.timeScale = 1f;
+        SetTimeScale(1f);
     }
 
     public static bool ResolveWin(float playerReaction, float aiReaction, bool tieToPlayer)
@@ -386,12 +412,12 @@ public class DuelController : MonoBehaviour
     void ResetState()
     {
         fireLatched = false;
-        cueTime = -1f;
+        DrawWindowOpen = false;
         LastPlayerReaction = -1f;
         LastMargin = -1f;
         LastMarginFraction = 0f;
         LastWon = false;
-        Time.timeScale = 1f;
+        SetTimeScale(1f);
 
         if (playerActor != null)
         {
@@ -448,11 +474,11 @@ public class DuelController : MonoBehaviour
         float t = 0f;
         while (t < bulletTimeRampIn)
         {
-            t += Time.unscaledDeltaTime;
-            Time.timeScale = Mathf.Lerp(from, bulletTimeScale, t / bulletTimeRampIn);
+            t += Delta;
+            SetTimeScale(Mathf.Lerp(from, bulletTimeScale, t / bulletTimeRampIn));
             yield return null;
         }
-        Time.timeScale = bulletTimeScale;
+        SetTimeScale(bulletTimeScale);
         while (true)
         {
             yield return null;
@@ -461,11 +487,11 @@ public class DuelController : MonoBehaviour
 
     IEnumerator HitStop(float seconds)
     {
-        Time.timeScale = 0f;
+        SetTimeScale(0f);
         float t = 0f;
         while (t < seconds)
         {
-            t += Time.unscaledDeltaTime;
+            t += Delta;
             yield return null;
         }
     }
@@ -477,7 +503,7 @@ public class DuelController : MonoBehaviour
         float t = 0f;
         while (t < shakeSeconds)
         {
-            t += Time.unscaledDeltaTime;
+            t += Delta;
             float falloff = 1f - (t / shakeSeconds);
             Vector2 o = UnityEngine.Random.insideUnitCircle * shakeMagnitude * falloff;
             float roll = (UnityEngine.Random.value - 0.5f) * 2f * shakeMagnitude * 8f * falloff;
@@ -495,7 +521,7 @@ public class DuelController : MonoBehaviour
         float t = 0f;
         while (t < dur)
         {
-            t += Time.unscaledDeltaTime;
+            t += Delta;
             c.fieldOfView = baseFov - fovKick * (1f - t / dur);
             yield return null;
         }
@@ -509,7 +535,7 @@ public class DuelController : MonoBehaviour
         float t = 0f;
         while (t < dur)
         {
-            t += Time.unscaledDeltaTime;
+            t += Delta;
             float k = Mathf.Sin((t / dur) * Mathf.PI);
             tr.localScale = home * (1f + 0.25f * k);
             yield return null;
@@ -542,7 +568,7 @@ public class DuelController : MonoBehaviour
         float t = 0f;
         while (t < seconds)
         {
-            t += Time.unscaledDeltaTime;
+            t += Delta;
             yield return null;
         }
         pad.SetMotorSpeeds(0f, 0f);
@@ -558,7 +584,7 @@ public class DuelController : MonoBehaviour
         float t = 0f;
         while (t < seconds)
         {
-            t += Time.unscaledDeltaTime;
+            t += Delta;
             float k = t / seconds;
             float a = Mathf.Pow(1f - k, 2.5f);
             Color c = Color.Lerp(Color.white, color, Mathf.Clamp01(k * 3f));
@@ -607,7 +633,7 @@ public class DuelController : MonoBehaviour
         float t = 0f;
         while (t < dur)
         {
-            t += Time.unscaledDeltaTime;
+            t += Delta;
             float k = t / dur;
             victim.position = startPos + dir * (knockback * k);
             victim.rotation = Quaternion.Slerp(startRot, endRot, k * k);
@@ -624,7 +650,7 @@ public class DuelController : MonoBehaviour
         float t = 0f;
         while (t < dur)
         {
-            t += Time.unscaledDeltaTime;
+            t += Delta;
             float k = Mathf.Sin((t / dur) * Mathf.PI);
             who.position = home + dir * (0.28f * k);
             yield return null;

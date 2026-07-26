@@ -63,13 +63,7 @@ public class RunClock : MonoBehaviour
         ShowHud(show);
     }
 
-    void OnOutOfSteps()
-    {
-        if (running && !runOver)
-        {
-            EndRun(false, "OUT OF STEPS", "you ran the boot leather off your soles");
-        }
-    }
+    void OnOutOfSteps() => GameOver("OUT OF STEPS", "you ran the boot leather off your soles");
 
     public void GameOver(string title, string sub)
     {
@@ -177,7 +171,13 @@ public class RunClock : MonoBehaviour
 
     static string FmtClock(int sec) => $"{sec / 60}:{sec % 60:00}";
 
-    void ShowHud(bool on) => hudCanvas.gameObject.SetActive(on);
+    void ShowHud(bool on)
+    {
+        if (hudCanvas != null)
+        {
+            hudCanvas.gameObject.SetActive(on);
+        }
+    }
 
     void UpdateHud()
     {

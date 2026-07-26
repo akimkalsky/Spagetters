@@ -193,10 +193,7 @@ public class PlayerController : MonoBehaviour
         SetPrompt(null);
 
         var rival = goon.GetRival();
-        if (rival != null)
-        {
-            RivalRoster.Select(rival);
-        }
+        RivalRoster.Select(rival);
 
         var boss = RivalRoster.TopUndefeated();
         bool isBoss = boss != null && rival != null && boss.Index == rival.Index;
