@@ -20,6 +20,8 @@ public static class GameEvents
     public static event Action<int> StreakChanged;
     public static event Action WantedChanged;
     public static event Action FalseStart;
+    public static event Action Hush;
+    public static event Action<bool> DialogueShown;
 
     public static void RaiseStepsChanged(int steps) => StepsChanged?.Invoke(steps);
     public static void RaiseOutOfSteps() => OutOfSteps?.Invoke();
@@ -39,4 +41,6 @@ public static class GameEvents
     public static void RaiseStreakChanged(int streak) => StreakChanged?.Invoke(streak);
     public static void RaiseWantedChanged() => WantedChanged?.Invoke();
     public static void RaiseFalseStart() => FalseStart?.Invoke();
+    public static void RaiseHush() => Hush?.Invoke();
+    public static void RaiseDialogueShown(bool shown) => DialogueShown?.Invoke(shown);
 }

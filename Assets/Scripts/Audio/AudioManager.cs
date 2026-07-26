@@ -63,11 +63,14 @@ public class AudioManager : MonoBehaviour
         return c;
     }
 
-    public void PlaySfx(string name, float volume = 1f)
+    public void PlaySfx(string name, float volume = 1f) => PlaySfx(name, volume, 0f);
+
+    public void PlaySfx(string name, float volume, float pan)
     {
         var clip = Load(name);
         if (clip != null)
         {
+            sfx.panStereo = pan;
             sfx.PlayOneShot(clip, volume * sfxScale);
         }
     }

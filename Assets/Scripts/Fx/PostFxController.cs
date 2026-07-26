@@ -31,6 +31,7 @@ public class PostFxController : MonoBehaviour
     static readonly Color VigNeutral = new Color(0.05f, 0.03f, 0.02f);
 
     float baseVig = 0.45f;
+    float squeeze;
 
     void Update()
     {
@@ -42,8 +43,22 @@ public class PostFxController : MonoBehaviour
         bool run = RunClock.Instance != null && RunClock.Instance.Running;
         float night = DayNightClock.Instance != null ? DayNightClock.Instance.Night : 0f;
 
+        float tension = Tension();
+        squeeze = Mathf.MoveTowards(squeeze, tension, Time.unscaledDeltaTime * (tension > squeeze ? 1.6f : 8f));
+
         vignette.color.value = menu || run ? Color.Lerp(VigWarm, VigCool, night) : VigNeutral;
-        vignette.intensity.value = run ? Mathf.Lerp(baseVig, 0.5f, night * 0.6f) : baseVig;
+        vignette.intensity.value = (run ? Mathf.Lerp(baseVig, 0.5f, night * 0.6f) : baseVig) + squeeze * 0.25f;
+    }
+
+    static float Tension()
+    {
+        var duel = DuelController.Instance;
+        if (duel == null || Accessibility.ReduceFlashing)
+        {
+            return 0f;
+        }
+        bool winding = duel.Current == DuelController.Phase.Standoff || duel.Current == DuelController.Phase.Draw;
+        return winding ? 1f : 0f;
     }
 
     void Build()

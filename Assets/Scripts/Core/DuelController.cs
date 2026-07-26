@@ -16,6 +16,7 @@ public class DuelController : MonoBehaviour
     public float cueDelayMin = 0.3f;
     public float cueDelayMax = 1.5f;
     public float timeout = 1.2f;
+    public float hushLead = 0.25f;
     public bool tieGoesToPlayer = true;
     public bool feint = true;
     public float feintChance = 0.5f;
@@ -39,6 +40,7 @@ public class DuelController : MonoBehaviour
     public float standoffZoom = 6f;
     public bool screenFlash = true;
     public float knockback = 0.9f;
+    public float photoFinishMargin = 0.12f;
 
     public Phase Current { get; private set; } = Phase.Idle;
     public float LastPlayerReaction { get; private set; } = -1f;
@@ -46,6 +48,9 @@ public class DuelController : MonoBehaviour
     public float LastMarginFraction { get; private set; }
     public bool LastWon { get; private set; }
     public bool DrawWindowOpen { get; private set; }
+    public bool LastFalseStart { get; private set; }
+
+    public float LastCloseness { get; private set; }
 
     public bool OwnsCountdown => Current == Phase.Approach || Current == Phase.Standoff || Current == Phase.Draw;
 
@@ -58,8 +63,10 @@ public class DuelController : MonoBehaviour
     int resumeFrame = -1;
     Vector3 playerHome, rivalHome, paceAxis = Vector3.right;
     Camera cam;
+    Camera fovOwner;
     float baseFov = 60f;
     static Image flashImg;
+    static Sprite puffSprite;
 
     public static DuelController Instance { get; private set; }
 
@@ -203,6 +210,8 @@ public class DuelController : MonoBehaviour
 
         float waited = 0f;
         bool feinted = false;
+        float hushAt = Mathf.Max(0f, cueDelay - hushLead);
+        bool hushed = false;
         while (waited < cueDelay)
         {
             waited += Delta;
@@ -210,6 +219,11 @@ public class DuelController : MonoBehaviour
             {
                 feinted = true;
                 GameEvents.RaiseFeintFlashed();
+            }
+            if (!hushed && waited >= hushAt)
+            {
+                hushed = true;
+                GameEvents.RaiseHush();
             }
             if (ConsumeFire())
             {
@@ -256,12 +270,16 @@ public class DuelController : MonoBehaviour
         bool won = ResolveWin(playerReaction, aiReaction, tieGoesToPlayer);
         LastMargin = aiReaction - playerReaction;
         LastMarginFraction = aiReaction > 0f ? Mathf.Clamp01(LastMargin / aiReaction) : 0f;
+        LastCloseness = photoFinishMargin > 0f
+            ? Mathf.Clamp01(1f - Mathf.Abs(LastMargin) / photoFinishMargin)
+            : 0f;
         yield return Finish(won, playerReaction, rivalWins: !won);
     }
 
     IEnumerator FalseStart()
     {
         Current = Phase.Resolve;
+        LastFalseStart = true;
         GameEvents.RaiseFalseStart();
         yield return Finish(false, -1f, rivalWins: true);
     }
@@ -294,6 +312,10 @@ public class DuelController : MonoBehaviour
         {
             StartCoroutine(ScalePunch(shooter));
             StartCoroutine(Recoil(shooter, -shotDir));
+            if (!Accessibility.ReduceFlashing)
+            {
+                StartCoroutine(MuzzleFlash(shooter, shotDir));
+            }
         }
         if (victimAnim != null && victimAnim.spriteRenderer != null)
         {
@@ -314,7 +336,11 @@ public class DuelController : MonoBehaviour
 
         if (hitStopSeconds > 0f)
         {
-            yield return HitStop(hitStopSeconds);
+            yield return HitStop(hitStopSeconds * (1f + 2f * LastCloseness));
+        }
+        if (LastCloseness > 0.6f)
+        {
+            yield return SlowBeat(0.18f, 0.3f);
         }
         SetTimeScale(1f);
 
@@ -322,7 +348,7 @@ public class DuelController : MonoBehaviour
         if (c != null && !Accessibility.ReduceFlashing)
         {
             StartCoroutine(FovKick(c));
-            StartCoroutine(CameraPunch(c));
+            StartCoroutine(CameraPunch(c, 1f + 1.2f * LastCloseness));
         }
 
         bool fatal = !won && GameFlow.Instance != null && GameFlow.Instance.duelLossIsFatal;
@@ -349,6 +375,7 @@ public class DuelController : MonoBehaviour
 
     IEnumerator DeathSequence()
     {
+        AudioManager.Instance?.PlaySfx("death", 0.9f);
         var img = FlashImage();
         if (img == null)
         {
@@ -413,9 +440,11 @@ public class DuelController : MonoBehaviour
     {
         fireLatched = false;
         DrawWindowOpen = false;
+        LastFalseStart = false;
         LastPlayerReaction = -1f;
         LastMargin = -1f;
         LastMarginFraction = 0f;
+        LastCloseness = 0f;
         LastWon = false;
         SetTimeScale(1f);
 
@@ -439,10 +468,24 @@ public class DuelController : MonoBehaviour
             }
         }
 
-        var c0 = Cam();
-        if (c0 != null)
+        CaptureBaseFov();
+    }
+
+    void CaptureBaseFov()
+    {
+        var c = Cam();
+        if (c == null)
         {
-            baseFov = c0.fieldOfView;
+            return;
+        }
+        if (fovOwner != c)
+        {
+            fovOwner = c;
+            baseFov = c.fieldOfView;
+        }
+        else
+        {
+            c.fieldOfView = baseFov;
         }
     }
 
@@ -496,7 +539,18 @@ public class DuelController : MonoBehaviour
         }
     }
 
-    IEnumerator CameraPunch(Camera c)
+    IEnumerator SlowBeat(float scale, float seconds)
+    {
+        SetTimeScale(scale);
+        float t = 0f;
+        while (t < seconds)
+        {
+            t += Delta;
+            yield return null;
+        }
+    }
+
+    IEnumerator CameraPunch(Camera c, float scale)
     {
         Vector3 homePos = c.transform.localPosition;
         Quaternion homeRot = c.transform.localRotation;
@@ -505,8 +559,8 @@ public class DuelController : MonoBehaviour
         {
             t += Delta;
             float falloff = 1f - (t / shakeSeconds);
-            Vector2 o = UnityEngine.Random.insideUnitCircle * shakeMagnitude * falloff;
-            float roll = (UnityEngine.Random.value - 0.5f) * 2f * shakeMagnitude * 8f * falloff;
+            Vector2 o = UnityEngine.Random.insideUnitCircle * shakeMagnitude * scale * falloff;
+            float roll = (UnityEngine.Random.value - 0.5f) * 2f * shakeMagnitude * scale * 8f * falloff;
             c.transform.localPosition = homePos + new Vector3(o.x, o.y, 0f);
             c.transform.localRotation = homeRot * Quaternion.Euler(0f, 0f, roll);
             yield return null;
@@ -618,6 +672,85 @@ public class DuelController : MonoBehaviour
         return flashImg;
     }
 
+    static Sprite Puff()
+    {
+        if (puffSprite == null)
+        {
+            puffSprite = ProceduralTex.SoftDisc(64, Color.white);
+        }
+        return puffSprite;
+    }
+
+    SpriteRenderer Billboarded(Vector3 at, Color color, float size)
+    {
+        var go = new GameObject("DuelFx");
+        go.transform.position = at;
+        go.transform.localScale = Vector3.one * size;
+        var c = Cam();
+        if (c != null)
+        {
+            go.transform.rotation = c.transform.rotation;
+        }
+        var sr = go.AddComponent<SpriteRenderer>();
+        sr.sprite = Puff();
+        sr.color = color;
+        sr.sortingOrder = 10;
+        return sr;
+    }
+
+    IEnumerator MuzzleFlash(Transform shooter, Vector3 dir)
+    {
+        var warm = new Color(1f, 0.92f, 0.65f);
+        var sr = Billboarded(shooter.position + Vector3.up * 1.1f + dir * 0.45f, warm, 1.6f);
+        float dur = 0.09f;
+        float t = 0f;
+        while (t < dur)
+        {
+            t += Delta;
+            float k = 1f - t / dur;
+            sr.color = new Color(warm.r, warm.g, warm.b, k);
+            sr.transform.localScale = Vector3.one * (1.6f * (0.6f + 0.8f * k));
+            yield return null;
+        }
+        Destroy(sr.gameObject);
+    }
+
+    IEnumerator DustBurst(Vector3 at, int count)
+    {
+        var dust = new Color(0.72f, 0.62f, 0.45f, 0.75f);
+        var pieces = new SpriteRenderer[count];
+        var vel = new Vector3[count];
+        for (int i = 0; i < count; i++)
+        {
+            pieces[i] = Billboarded(at + UnityEngine.Random.insideUnitSphere * 0.2f, dust, 0.5f);
+            Vector2 spread = UnityEngine.Random.insideUnitCircle;
+            vel[i] = new Vector3(spread.x, Mathf.Abs(spread.y) * 0.8f + 0.3f, spread.y) * 1.6f;
+        }
+
+        float dur = 0.45f;
+        float t = 0f;
+        while (t < dur)
+        {
+            t += Delta;
+            float k = t / dur;
+            for (int i = 0; i < count; i++)
+            {
+                vel[i] += Vector3.down * 2.2f * Delta;
+                pieces[i].transform.position += vel[i] * Delta;
+                pieces[i].transform.localScale = Vector3.one * (0.5f * (1f + k));
+                pieces[i].color = new Color(dust.r, dust.g, dust.b, dust.a * (1f - k));
+            }
+            yield return null;
+        }
+        for (int i = 0; i < count; i++)
+        {
+            if (pieces[i] != null)
+            {
+                Destroy(pieces[i].gameObject);
+            }
+        }
+    }
+
     IEnumerator DeathFall(Transform victim, Vector3 dir)
     {
         Vector3 startPos = victim.position;
@@ -641,6 +774,8 @@ public class DuelController : MonoBehaviour
         }
         victim.position = startPos + dir * knockback;
         victim.rotation = endRot;
+        AudioManager.Instance?.PlaySfx("clunk", 0.6f);
+        StartCoroutine(DustBurst(victim.position, 7));
     }
 
     IEnumerator Recoil(Transform who, Vector3 dir)
@@ -661,5 +796,9 @@ public class DuelController : MonoBehaviour
     void OnDisable()
     {
         Gamepad.current?.SetMotorSpeeds(0f, 0f);
+        if (fovOwner != null)
+        {
+            fovOwner.fieldOfView = baseFov;
+        }
     }
 }

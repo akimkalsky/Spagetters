@@ -31,6 +31,7 @@ public class GameAudio : MonoBehaviour
         GameEvents.RivalFled += OnRivalFled;
         GameEvents.StreakChanged += OnStreak;
         GameEvents.FalseStart += OnFalseStart;
+        GameEvents.Hush += OnHush;
     }
 
     void OnDisable()
@@ -45,6 +46,7 @@ public class GameAudio : MonoBehaviour
         GameEvents.RivalFled -= OnRivalFled;
         GameEvents.StreakChanged -= OnStreak;
         GameEvents.FalseStart -= OnFalseStart;
+        GameEvents.Hush -= OnHush;
         if (GameFlow.Instance != null)
         {
             GameFlow.Instance.StateChanged -= OnState;
@@ -83,10 +85,13 @@ public class GameAudio : MonoBehaviour
     {
         if (n > 0)
         {
-            AudioManager.Instance?.PlaySfx("tick");
-            AudioManager.Instance?.PlaySfx("footstep", 0.5f);
+            float pan = n % 2 == 0 ? -0.35f : 0.35f;
+            AudioManager.Instance?.PlaySfx("tick", 1f, pan * 0.5f);
+            AudioManager.Instance?.PlaySfx("footstep", 0.5f, pan);
         }
     }
+
+    void OnHush() => AudioManager.Instance?.StopAmbient();
 
     void OnSteps(int steps)
     {
@@ -135,6 +140,11 @@ public class GameAudio : MonoBehaviour
 
     void OnDuelEnded(bool won, float reaction)
     {
+        bool fatal = !won && GameFlow.Instance != null && GameFlow.Instance.duelLossIsFatal;
+        if (fatal)
+        {
+            return;
+        }
         StartCoroutine(Sting(won));
     }
 

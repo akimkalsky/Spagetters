@@ -517,7 +517,17 @@ public class GameFlow : MonoBehaviour
         GameEvents.RaiseStreakChanged(0);
         if (duelLossIsFatal)
         {
-            RunClock.Instance?.GameOver("YOU DIED", "gunned down in the dust");
+            var duel = DuelController.Instance;
+            if (duel != null && duel.LastFalseStart)
+            {
+                RunClock.Instance?.GameOver("TOO EARLY", "you drew before the call");
+            }
+            else
+            {
+                var killer = RivalRoster.Current;
+                string gloat = killer != null && !string.IsNullOrEmpty(killer.Gloat) ? $"\"{killer.Gloat}\"" : null;
+                RunClock.Instance?.GameOver("YOU DIED", gloat ?? "gunned down in the dust");
+            }
             return;
         }
 

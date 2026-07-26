@@ -154,6 +154,7 @@ public class DuelIntroUI : MonoBehaviour
         if (nextButton != null) nextButton.gameObject.SetActive(true);
 
         if (holder != null) holder.SetActive(true);
+        GameEvents.RaiseDialogueShown(true);
 
         DisplayCurrentLine();
     }
@@ -275,6 +276,7 @@ public class DuelIntroUI : MonoBehaviour
         yield return new WaitForSeconds(delayBeforeDuel);
 
         if (holder != null) holder.SetActive(false);
+        GameEvents.RaiseDialogueShown(false);
 
         if (duel != null)
         {

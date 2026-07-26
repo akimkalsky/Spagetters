@@ -85,6 +85,7 @@ public class DuelToastController : MonoBehaviour
 
         int streak = GameFlow.Instance != null ? GameFlow.Instance.WinStreak : 0;
         var parts = new System.Collections.Generic.List<string>();
+        if (won && margin >= 0f) parts.Add(MarginTier(DuelController.Instance.LastCloseness));
         if (won && r != null) parts.Add($"+${r.Bounty}");
         if (reaction >= 0f) parts.Add($"{reaction:0.000}s");
         if (margin >= 0f) parts.Add($"won by {margin:0.000}s");
@@ -99,6 +100,23 @@ public class DuelToastController : MonoBehaviour
         }
 
         Replay();
+    }
+
+    static string MarginTier(float closeness)
+    {
+        if (closeness >= 0.8f)
+        {
+            return "BY A HAIR";
+        }
+        if (closeness >= 0.55f)
+        {
+            return "CLOSE ONE";
+        }
+        if (closeness >= 0.2f)
+        {
+            return "CLEAN";
+        }
+        return "LIGHTNING";
     }
 
     void OnJob(int steps, int money)

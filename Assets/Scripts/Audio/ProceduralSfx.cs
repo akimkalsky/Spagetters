@@ -26,6 +26,7 @@ public static class ProceduralSfx
             case "alarm":      return Blip(720f, 0.22f, 0.28f, Wave.Triangle, 720f);
             case "type":       return Blip(950f, 0.02f, 0.06f, Wave.Triangle, 950f);
             case "gunshot":    return Gunshot();
+            case "death":      return Death();
             case "win":        return Chord(new[] { 523.25f, 659.25f, 783.99f }, 0.7f, false);
             case "lose":       return Chord(new[] { 349.23f, 261.63f, 196f }, 0.9f, true);
             case "wind":       return Wind(4f);
@@ -150,40 +151,131 @@ public static class ProceduralSfx
 
     static AudioClip Gunshot()
     {
-        int n = (int)(SR * 0.6f);
+        int n = (int)(SR * 0.85f);
         var d = new float[n];
-        float lp = 0f, bodyPh = 0f, subPh = 0f;
+        float lp = 0f, prevNoise = 0f, bodyPh = 0f, subPh = 0f;
         for (int i = 0; i < n; i++)
         {
             float t = (float)i / n;
+            float ms = i * 1000f / SR;
 
-            float click = i < 45 ? (1f - i / 45f) : 0f;
+            float nz = Noise();
+            float crack = (nz - prevNoise) * Mathf.Exp(-ms / 3.5f);
+            prevNoise = nz;
 
-            lp += 0.8f * (Noise() - lp);
-            float crack = lp * Mathf.Exp(-30f * t);
+            lp += 0.55f * (nz - lp);
+            float blast = lp * Mathf.Exp(-ms / 22f);
 
-            float blast = Noise() * Mathf.Exp(-11f * t) * 0.6f;
-
-            float bodyFreq = Mathf.Lerp(220f, 45f, Mathf.Min(1f, t * 3.5f));
+            float bodyFreq = Mathf.Lerp(260f, 48f, Mathf.Min(1f, t * 5f));
             bodyPh += bodyFreq / SR;
             if (bodyPh >= 1f)
             {
                 bodyPh -= 1f;
             }
-            float body = Mathf.Sin(bodyPh * 2f * Mathf.PI) * Mathf.Exp(-6.5f * t);
+            float body = Mathf.Sin(bodyPh * 2f * Mathf.PI) * Mathf.Exp(-ms / 45f);
 
-            subPh += 42f / SR;
+            subPh += 38f / SR;
             if (subPh >= 1f)
             {
                 subPh -= 1f;
             }
-            float sub = Mathf.Sin(subPh * 2f * Mathf.PI) * Mathf.Exp(-5f * t) * 0.75f;
+            float sub = Mathf.Sin(subPh * 2f * Mathf.PI) * Mathf.Exp(-ms / 90f);
 
-            float x = (click * 1.0f + crack * 0.9f + blast * 0.5f + body * 1.1f + sub * 0.85f) * 1.7f;
+            d[i] = crack * 2.6f + blast * 1.5f + body * 1.2f + sub * 0.9f;
+        }
+
+        SlapBack(d, 0.115f, 0.34f);
+        SlapBack(d, 0.255f, 0.17f);
+        Saturate(d, 1.6f);
+        Normalize(d, 1.0f);
+        return FromSamples("gunshot", d, false, 0.95f);
+    }
+
+    static AudioClip Death()
+    {
+        int n = (int)(SR * 1.8f);
+        var d = new float[n];
+        float lp = 0f, ph = 0f, third = 0f, wob = 0f;
+        for (int i = 0; i < n; i++)
+        {
+            float t = (float)i / n;
+            float ms = i * 1000f / SR;
+
+            lp += 0.12f * (Noise() - lp);
+            float thud = lp * Mathf.Exp(-ms / 55f) * 1.6f;
+
+            float f = Mathf.Lerp(190f, 52f, Mathf.Pow(t, 0.55f));
+            ph += f / SR;
+            if (ph >= 1f)
+            {
+                ph -= 1f;
+            }
+            float groan = (Mathf.Sin(ph * 2f * Mathf.PI) + Osc(Wave.Triangle, ph) * 0.35f) * Mathf.Exp(-2.1f * t);
+
+            third += f * 1.19f / SR;
+            if (third >= 1f)
+            {
+                third -= 1f;
+            }
+            float partial = Mathf.Sin(third * 2f * Mathf.PI) * Mathf.Exp(-3.4f * t) * 0.4f;
+
+            wob += 3.5f / SR;
+            if (wob >= 1f)
+            {
+                wob -= 1f;
+            }
+            float tremolo = 0.85f + 0.15f * Mathf.Sin(wob * 2f * Mathf.PI);
+
+            d[i] = (thud + (groan + partial) * tremolo * 0.75f) * Mathf.Min(1f, i / 60f);
+        }
+
+        SlapBack(d, 0.19f, 0.22f);
+        FadeTail(d, 0.25f);
+        Normalize(d, 0.95f);
+        return FromSamples("death", d, false, 0.5f);
+    }
+
+    static void SlapBack(float[] d, float delaySeconds, float gain)
+    {
+        int delay = (int)(SR * delaySeconds);
+        if (delay <= 0 || delay >= d.Length)
+        {
+            return;
+        }
+        var echo = new float[d.Length];
+        float y = 0f;
+        for (int i = delay; i < d.Length; i++)
+        {
+            y += 0.22f * (d[i - delay] - y);
+            echo[i] = y * gain;
+        }
+        for (int i = 0; i < d.Length; i++)
+        {
+            d[i] += echo[i];
+        }
+    }
+
+    static void FadeTail(float[] d, float seconds)
+    {
+        int fade = Mathf.Min(d.Length, (int)(SR * seconds));
+        if (fade <= 0)
+        {
+            return;
+        }
+        int start = d.Length - fade;
+        for (int i = start; i < d.Length; i++)
+        {
+            d[i] *= 1f - (float)(i - start) / fade;
+        }
+    }
+
+    static void Saturate(float[] d, float drive)
+    {
+        for (int i = 0; i < d.Length; i++)
+        {
+            float x = d[i] * drive;
             d[i] = x / (1f + Mathf.Abs(x));
         }
-        Normalize(d, 1.0f);
-        return FromSamples("gunshot", d, false, 0.9f);
     }
 
     static AudioClip Explosion()

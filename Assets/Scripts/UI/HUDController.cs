@@ -1,14 +1,22 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class HUDController : MonoBehaviour
 {
     Canvas canvas;
-    TMP_Text countLabel, drawLabel, roundLabel, feintLabel, steadyLabel, promptLabel, nameLabel, paceLabel, paceCaption, drawHint, streakLabel;
+    TMP_Text countLabel, drawLabel, roundLabel, feintLabel, steadyLabel, promptLabel, nameLabel, paceLabel, paceCaption, drawHint, streakLabel, falseStartLabel;
     float drawFlash;
     Coroutine feintRoutine;
     int shownCount = int.MinValue;
+    Image stepIcon;
+    bool dialogue;
+
+    const string StepIconPath = "UI/step_icon";
+    const float StepIconHeight = 96f;
+    const float StepIconGap = 20f;
+    const int LowSteps = 5;
 
     static readonly Color Amber = new Color(0.95f, 0.75f, 0.35f);
 
@@ -31,6 +39,8 @@ public class HUDController : MonoBehaviour
         GameEvents.Prompt += OnPrompt;
         GameEvents.Pace += OnPace;
         GameEvents.StreakChanged += OnStreak;
+        GameEvents.FalseStart += OnFalseStart;
+        GameEvents.DialogueShown += OnDialogue;
     }
 
     void OnDisable()
@@ -45,6 +55,8 @@ public class HUDController : MonoBehaviour
         GameEvents.Prompt -= OnPrompt;
         GameEvents.Pace -= OnPace;
         GameEvents.StreakChanged -= OnStreak;
+        GameEvents.FalseStart -= OnFalseStart;
+        GameEvents.DialogueShown -= OnDialogue;
         if (GameFlow.Instance != null)
         {
             GameFlow.Instance.StateChanged -= OnState;
@@ -59,6 +71,7 @@ public class HUDController : MonoBehaviour
         drawHint.gameObject.SetActive(false);
         steadyLabel.gameObject.SetActive(false);
         feintLabel.gameObject.SetActive(false);
+        falseStartLabel.gameObject.SetActive(false);
         ShowPace(false);
         if (s != GameState.Explore)
         {
@@ -68,6 +81,8 @@ public class HUDController : MonoBehaviour
         {
             RestoreDuelPrompts();
         }
+        dialogue = false;
+        ApplyStepCounter();
 
         // --- CHANGE 1: Display Name Fix ---
         Goon active = GameFlow.Instance != null ? GameFlow.Instance.activeGoon : null;
@@ -119,6 +134,7 @@ public class HUDController : MonoBehaviour
     {
         canvas = UIFactory.CreateOverlayCanvas("HUDCanvas", 50, transform);
         countLabel = UIFactory.Label(canvas.transform, "10", 160, UIFactory.Parchment, new Vector2(0, 460));
+        stepIcon = BuildStepIcon();
         roundLabel = UIFactory.Label(canvas.transform, "", 46, UIFactory.Rust, new Vector2(0, 480));
         nameLabel = UIFactory.Label(canvas.transform, "", 56, UIFactory.Parchment, new Vector2(0, 300));
 
@@ -131,6 +147,9 @@ public class HUDController : MonoBehaviour
         drawLabel.gameObject.SetActive(false);
         drawHint = UIFactory.Label(canvas.transform, "CLICK  or  E !", 64, Amber, new Vector2(0, -180));
         drawHint.gameObject.SetActive(false);
+
+        falseStartLabel = UIFactory.Label(canvas.transform, "TOO EARLY!", 150, UIFactory.Rust, new Vector2(0, 20));
+        falseStartLabel.gameObject.SetActive(false);
 
         feintLabel = UIFactory.Label(canvas.transform, "…", 130, new Color(0.55f, 0.5f, 0.45f, 1f), new Vector2(0, 20));
         feintLabel.gameObject.SetActive(false);
@@ -146,6 +165,8 @@ public class HUDController : MonoBehaviour
         srt.sizeDelta = new Vector2(360, 60);
         streakLabel.alignment = TextAlignmentOptions.Right;
         streakLabel.gameObject.SetActive(false);
+
+        PlaceStepIcon();
     }
 
     void OnStreak(int streak)
@@ -170,6 +191,51 @@ public class HUDController : MonoBehaviour
         }
         shownCount = value;
         countLabel.text = value.ToString();
+
+        var tint = value <= LowSteps ? UIFactory.Rust : UIFactory.Parchment;
+        countLabel.color = tint;
+        if (stepIcon != null)
+        {
+            stepIcon.color = tint;
+        }
+        PlaceStepIcon();
+    }
+
+    Image BuildStepIcon()
+    {
+        var go = new GameObject("StepIcon");
+        go.transform.SetParent(canvas.transform, false);
+        var img = go.AddComponent<Image>();
+        img.color = UIFactory.Parchment;
+        img.raycastTarget = false;
+        img.preserveAspect = true;
+
+        var sprite = Resources.Load<Sprite>(StepIconPath);
+        img.sprite = sprite;
+        if (sprite == null)
+        {
+            go.SetActive(false);
+            return img;
+        }
+
+        float aspect = sprite.rect.height > 0f ? sprite.rect.width / sprite.rect.height : 1f;
+        img.rectTransform.sizeDelta = new Vector2(StepIconHeight * aspect, StepIconHeight);
+        return img;
+    }
+
+    bool HasStepIcon => stepIcon != null && stepIcon.sprite != null;
+
+    void PlaceStepIcon()
+    {
+        if (!HasStepIcon)
+        {
+            return;
+        }
+        countLabel.ForceMeshUpdate();
+        var home = countLabel.rectTransform.anchoredPosition;
+        float edge = countLabel.preferredWidth * 0.5f;
+        float offset = edge + StepIconGap + stepIcon.rectTransform.sizeDelta.x * 0.5f;
+        stepIcon.rectTransform.anchoredPosition = new Vector2(home.x - offset, home.y - 6f);
     }
 
     // --- CHANGE 2: Round Label Fix ---
@@ -234,7 +300,39 @@ public class HUDController : MonoBehaviour
         drawHint.gameObject.SetActive(false);
         steadyLabel.gameObject.SetActive(false);
         feintLabel.gameObject.SetActive(false);
+        falseStartLabel.gameObject.SetActive(false);
         ShowPace(false);
+    }
+
+    void OnDialogue(bool shown)
+    {
+        dialogue = shown;
+        ApplyStepCounter();
+    }
+
+    void ApplyStepCounter()
+    {
+        bool show = !dialogue;
+        countLabel.gameObject.SetActive(show);
+        if (stepIcon != null)
+        {
+            stepIcon.gameObject.SetActive(show && HasStepIcon);
+        }
+        if (show)
+        {
+            PlaceStepIcon();
+        }
+    }
+
+    void OnFalseStart()
+    {
+        ShowPace(false);
+        steadyLabel.gameObject.SetActive(false);
+        feintLabel.gameObject.SetActive(false);
+        drawLabel.gameObject.SetActive(false);
+        drawHint.gameObject.SetActive(false);
+        falseStartLabel.gameObject.SetActive(true);
+        StartCoroutine(Punch(falseStartLabel.rectTransform));
     }
 
     void OnFeint()
